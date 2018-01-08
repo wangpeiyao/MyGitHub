@@ -60,13 +60,7 @@ public class LoginFrame {
 		frame.getContentPane().add(navigationPanel, BorderLayout.NORTH);
 		frame.setVisible(true);
 	}
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				new Login();
-			}
-		});
-	}
+
 	private JTabbedPane createNavigationPanel() { // 创建导航标签面板的方法
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.setFocusable(false);
@@ -224,14 +218,5 @@ public class LoginFrame {
 			}
 		}
 	}
-	static {
-		try {
-			//UIManager.getSystemLookAndFeelClassName()
-//			 org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper.launchBeautyEyeLNF();
-			String lookAndFeel ="com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
-			UIManager.setLookAndFeel(lookAndFeel);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 }
