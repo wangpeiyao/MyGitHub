@@ -40,7 +40,7 @@ import com.qhyj.domain.GoodsDo;
 import com.qhyj.domain.SellOrderDo;
 import com.qhyj.domain.UserDo;
 import com.qhyj.model.CustomItem;
-import com.qhyj.model.SellOrderTableInfo;
+import com.qhyj.model.GoodsTableInfo;
 import com.qhyj.ui.login.Login;
 import com.qhyj.util.DateUtil;
 import com.qhyj.util.StringUtil;
@@ -99,7 +99,7 @@ public class SellOrderFrame extends JInternalFrame {
 		sp = new JComboBox();
 		sp.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				SellOrderTableInfo info = (SellOrderTableInfo) sp.getSelectedItem();
+				GoodsTableInfo info = (GoodsTableInfo) sp.getSelectedItem();
 				// 如果选择有效就更新表格
 				if (info != null && info.getGid() != null) {
 					updateTable();
@@ -140,7 +140,7 @@ public class SellOrderFrame extends JInternalFrame {
 				stopTableCellEditing();
 				// 如果表格中还包含空行，就再添加新行
 				for (int i = 0; i < table.getRowCount(); i++) {
-//					SellOrderTableInfo info = (SellOrderTableInfo) table.getValueAt(i, 1);
+//					GoodsTableInfo info = (GoodsTableInfo) table.getValueAt(i, 1);
 					if (table.getValueAt(i, 1) == null)
 						return;
 				}
@@ -177,7 +177,7 @@ public class SellOrderFrame extends JInternalFrame {
 				int rows = table.getRowCount();
 				List list = new ArrayList();
 				for (int i = 0; i < rows; i++) {
-					SellOrderTableInfo soInfo = (SellOrderTableInfo) table.getValueAt(i, 1);
+					GoodsTableInfo soInfo = (GoodsTableInfo) table.getValueAt(i, 1);
 					SellOrderDo sellOrderDo = new SellOrderDo();
 					sellOrderDo.setCid(kehuid);
 					sellOrderDo.setGid(soInfo.getGid());
@@ -284,9 +284,9 @@ public class SellOrderFrame extends JInternalFrame {
 		List list = new ArrayList();
 		List goodsList = MainController.getInstance().getHavStockGoodsList();//需要取库存大于0的商票
 		sp.removeAllItems();
-		sp.addItem(new SellOrderTableInfo());
+		sp.addItem(new GoodsTableInfo());
 		for (int i = 0; table != null && i < table.getRowCount(); i++) {
-			SellOrderTableInfo tmpInfo = (SellOrderTableInfo) table.getValueAt(i, 1);
+			GoodsTableInfo tmpInfo = (GoodsTableInfo) table.getValueAt(i, 1);
 			if (tmpInfo != null && tmpInfo.getGid() != null)
 				list.add(tmpInfo.getGid());
 		}
@@ -296,7 +296,7 @@ public class SellOrderFrame extends JInternalFrame {
 			if (list.contains(goodsDo.getGid())){
 				continue;
 			}
-			SellOrderTableInfo info = new SellOrderTableInfo();
+			GoodsTableInfo info = new GoodsTableInfo();
 			info.setGid(goodsDo.getGid());
 			info.setGname(goodsDo.getGname());
 			info.setSpec(goodsDo.getSpec());
@@ -329,9 +329,9 @@ public class SellOrderFrame extends JInternalFrame {
 			int count = 0;
 			BigDecimal money = new BigDecimal(0);
 			// 计算品种数量
-			SellOrderTableInfo column = null;
+			GoodsTableInfo column = null;
 			if (rows > 0)
-				column = (SellOrderTableInfo) table.getValueAt(rows - 1, 1);
+				column = (GoodsTableInfo) table.getValueAt(rows - 1, 1);
 			if (rows > 0 && (column == null || null==column.getGid()))
 				rows--;
 			// 计算货品总数和金额
@@ -388,7 +388,7 @@ public class SellOrderFrame extends JInternalFrame {
 	}
 	// 根据商品下拉框的选择，更新表格当前行的内容
 	private synchronized void updateTable() {
-		SellOrderTableInfo spinfo = (SellOrderTableInfo) sp.getSelectedItem();
+		GoodsTableInfo spinfo = (GoodsTableInfo) sp.getSelectedItem();
 		int row = table.getSelectedRow();
 	
 		if (row >= 0 && spinfo != null) {
@@ -406,7 +406,7 @@ public class SellOrderFrame extends JInternalFrame {
 	private synchronized void clearEmptyRow() {
 		DefaultTableModel dftm = (DefaultTableModel) table.getModel();
 		for (int i = 0; i < table.getRowCount(); i++) {
-			SellOrderTableInfo info2 = (SellOrderTableInfo) table.getValueAt(i, 1);
+			GoodsTableInfo info2 = (GoodsTableInfo) table.getValueAt(i, 1);
 			if (info2 == null || info2.getGid() == null
 					|| null==info2.getGid()) {
 				dftm.removeRow(i);

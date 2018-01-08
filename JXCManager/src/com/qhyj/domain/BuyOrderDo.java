@@ -10,8 +10,12 @@ public class BuyOrderDo extends BaseDo{
 	private Integer gid;
 	private Date orderDate;
 	private Integer count;
+	private Double amount;
+	private Double sumAmount;
+	private String memo;
 	private Date createtime;
 	private Date lastupdateTime;
+	private String buyNum;
 
 	
 	public Integer getBoid() {
@@ -72,13 +76,52 @@ public class BuyOrderDo extends BaseDo{
 	public void setLastupdateTime(Date lastupdateTime) {
 		this.lastupdateTime = lastupdateTime;
 	}
+	
+
+	public String getMemo() {
+		return memo;
+	}
+
+
+	public void setMemo(String memo) {
+		this.memo = memo;
+	}
+
+
+	public String getBuyNum() {
+		return buyNum;
+	}
+
+
+	public void setBuyNum(String buyNum) {
+		this.buyNum = buyNum;
+	}
+
+
+	public Double getAmount() {
+		return amount;
+	}
+
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
+	}
+
+
+	public Double getSumAmount() {
+		return sumAmount;
+	}
+
+
+	public void setSumAmount(Double sumAmount) {
+		this.sumAmount = sumAmount;
+	}
 
 
 	@Override
 	public String getInsertSql() {
-		return "INSERT INTO T_BUY_ORDER(GID,ORDERDATE,COUNT,MEMO,CREATETIME,LASTUPDATETIME,SELLNUM)VALUES("+this.cid
-				+","+this.gid+",'"+DateUtil.fmtDateToYMD(this.orderDate)+"',"+this.count+","+this.sumAmount
-				+","+this.amount+",'"+(this.memo==null?"":this.memo)+"',GETDATE(),GETDATE(),'"+this.sellNum+"')";
+		return "INSERT INTO T_BUY_ORDER(GID,ORDERDATE,COUNT,AMOUNT,SUMAMOUNT,MEMO,CREATETIME,LASTUPDATETIME,SELLNUM)VALUES("+this.gid
+				+",'"+DateUtil.fmtDateToYMD(this.orderDate)+"',"+this.count+","+this.amount+","+this.sumAmount+",'"+this.memo+"',GETDATE(),GETDATE(),'"+this.buyNum+"')";
 	}
 
 }

@@ -1,6 +1,6 @@
 package com.qhyj.model;
 
-public class SellOrderTableInfo {
+public class GoodsTableInfo {
 	private String gname;
 	private Integer gid;
 	private String spec;

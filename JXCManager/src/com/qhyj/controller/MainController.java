@@ -1,18 +1,20 @@
 package com.qhyj.controller;
 
-import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.qhyj.dao.BaseDao;
+import com.qhyj.dao.BuyOrderDao;
 import com.qhyj.dao.CustomDao;
 import com.qhyj.dao.GoodsDao;
 import com.qhyj.dao.RebateDao;
 import com.qhyj.dao.SellOrderDao;
 import com.qhyj.dao.StockDao;
 import com.qhyj.dao.UserDao;
+import com.qhyj.domain.BuyOrderDo;
 import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.GoodsDo;
 import com.qhyj.domain.RebateDo;
@@ -38,6 +40,8 @@ public class MainController {
 	
 	private StockDao stockDao;
 	
+	private BuyOrderDao buyOrderDao;
+	
 	public static MainController getInstance()  {
 		if(null==instance) {
 			try {
@@ -48,6 +52,7 @@ public class MainController {
 				instance.setRebateDao(new RebateDao());
 				instance.setStockDao(new StockDao());
 				instance.setSellOrderDao(new SellOrderDao());
+				instance.setBuyOrderDao(new BuyOrderDao());
 			} catch (InstantiationException e) {
 				System.out.println("MainController初始化失败：");
 				e.printStackTrace();
@@ -155,6 +160,9 @@ public class MainController {
 	public String getSellMainMaxId(Date date) {
 		return sellOrderDao.getMaxSellNum(date);
 	}
+	public String getBuyMainMaxId(Date date) {
+		return buyOrderDao.getMaxBuyNum(date);
+	}
 	
 	public List getAllGoodsList() {
 		return goodsDao.getAllGoodsList();
@@ -172,6 +180,9 @@ public class MainController {
 	public List getAllSellOrderList() {
 		return sellOrderDao.getAllSellOrderList();
 	}
+	public List getAllBuyOrderList() {
+		return buyOrderDao.getAllBuyOrderList();
+	}
 	public void addSellOrderList(List<SellOrderDo> list) {
 		String sellNum = list.get(0).getSellNum();
 		Date orderDate =list.get(0).getOrderDate();
@@ -186,6 +197,22 @@ public class MainController {
 			stockDo.setLavenum(sellOrderDo.getCount());
 			stockDo.setSdate(sellOrderDo.getOrderDate());
 			stockDao.addOrUpdateStock(stockDo,2);
+		}
+	}
+	public void addBuyOrderList(List<BuyOrderDo> list) {
+		String buyNum = list.get(0).getBuyNum();
+		Date orderDate =list.get(0).getOrderDate();
+		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))) {
+			throw new RuntimeException("销售单与销售日期不匹配");
+		}
+		buyOrderDao.delBuyOrderByBuyNum(buyNum);
+		for(BuyOrderDo buyOrderDo:list) {
+			buyOrderDao.addBuyOrder(buyOrderDo);
+			StockDo stockDo = new StockDo();
+			stockDo.setGid(buyOrderDo.getGid());
+			stockDo.setLavenum(buyOrderDo.getCount());
+			stockDo.setSdate(buyOrderDo.getOrderDate());
+			stockDao.addOrUpdateStock(stockDo,1);
 		}
 	}
 	
@@ -213,6 +240,9 @@ public class MainController {
 	}
 	public void setStockDao(StockDao stockDao) {
 		this.stockDao = stockDao;
+	}
+	public void setBuyOrderDao(BuyOrderDao buyOrderDao) {
+		this.buyOrderDao = buyOrderDao;
 	}
 
 	
