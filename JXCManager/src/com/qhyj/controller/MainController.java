@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.qhyj.dao.BaseDao;
 import com.qhyj.dao.BuyOrderDao;
@@ -133,7 +134,9 @@ public class MainController {
 	public List getAllCustomList() {
 		return customDao.getAllCustomList();
 	}
-	
+	public List getGoodsListByMap(Map map) {
+		return goodsDao.getGoodsListByMap(map);
+	}
 	public void addGoods(GoodsDo goodsDo) {
 		goodsDao.addGoods(goodsDo);
 	}
@@ -150,12 +153,15 @@ public class MainController {
 	public List getHavStockGoodsList() {
 		List<GoodsDo> list =  goodsDao.getAllGoodsList();
 		for(GoodsDo goodsDo:list) {
-			Integer lavenum = stockDao.getCurrStockByGid(goodsDo.getGid());
+			Integer lavenum = getCurrStockByGid(goodsDo.getGid());
 			if(lavenum<1) {
 				list.remove(goodsDo);
 			}
 		}
 		return list;
+	}
+	public int getCurrStockByGid(int gid) {
+		return stockDao.getCurrStockByGid(gid);
 	}
 	public String getSellMainMaxId(Date date) {
 		return sellOrderDao.getMaxSellNum(date);

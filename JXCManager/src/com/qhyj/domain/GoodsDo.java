@@ -1,6 +1,6 @@
 package com.qhyj.domain;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class GoodsDo extends BaseDo{
 	
@@ -10,7 +10,7 @@ public class GoodsDo extends BaseDo{
 	private String place;
 	private Integer isRebate;
 	private Date createTime;
-	private Date lastUpdateDateTime;
+	private Date lastUpdateTime;
 	private String memo;
 	
 	
@@ -66,12 +66,13 @@ public class GoodsDo extends BaseDo{
 		this.createTime = createTime;
 	}
 
-	public Date getLastUpdateDateTime() {
-		return lastUpdateDateTime;
+
+	public Date getLastUpdateTime() {
+		return lastUpdateTime;
 	}
 
-	public void setLastUpdateDateTime(Date lastUpdateDateTime) {
-		this.lastUpdateDateTime = lastUpdateDateTime;
+	public void setLastUpdateTime(Date lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
 	}
 
 	public String getMemo() {

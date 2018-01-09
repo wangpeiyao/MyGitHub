@@ -1,7 +1,6 @@
 package com.qhyj.dao;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,7 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import com.qhyj.domain.BaseDo;
 import com.qhyj.util.DateUtil;
@@ -86,6 +87,26 @@ public abstract class BaseDao {
 		System.out.println(baseId.substring(baseId.length() - 3));
 		
 	}
+	public List getListByMap(String sql,Map map,BaseDo baseDo) {
+		StringBuffer sb  = new StringBuffer(sql);
+		sb.append(" WHERE 1=1");
+		Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, Object> entry = it.next();
+			String key = entry.getKey();
+			Object val = entry.getValue();
+			if(val instanceof String&& ((String) val).indexOf("name")>-1) {
+				sb.append(" AND ").append(entry.getKey()).append(" like '%").append(entry.getValue()).append("%'");
+			}else if(val instanceof String) {
+				sb.append(" AND ").append(entry.getKey()).append(" = '").append(entry.getValue()).append("'");
+			}else if(val instanceof Date) {
+				sb.append(" AND ").append(entry.getKey()).append(" = '").append(DateUtil.fmtDateToYMD((Date)entry.getValue())).append("'");
+			}else {
+				sb.append(" AND ").append(entry.getKey()).append(" = ").append(entry.getValue());
+			}
+		}
+		return findListBySql(baseDo, sb.toString());
+	}
 	protected Integer insert(String sql){
 		boolean result = false;
 		Integer id = null;
@@ -112,45 +133,6 @@ public abstract class BaseDao {
 		return result;
 	}
 	
-//	protected Integer insert(BaseDo baseDo){
-//		if(baseDo==null) {
-//			return 0;
-//		}
-//		
-//		boolean result = false;
-//		PreparedStatement pstmt;
-//		Integer id = null;
-//		try {
-//			pstmt = (PreparedStatement) conn.prepareStatement(baseDo.getInsertSql());
-//			String[] strr = baseDo.getFieldNames();
-//			Method m = null;
-//			for(int i=0;i<strr.length;i++ ) {
-//				String fieldName = strr[i];
-//	            String methodName = fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1); // 将属性的首字符大写，方便构造get，set方法
-//				Field field = baseDo.getClass().getField(fieldName);
-//			    String type = field.getGenericType().toString(); 
-//			    if (type.equals("class java.lang.String")) {
-//					m = baseDo.getClass().getMethod("get" + methodName, String.class);
-//					pstmt.setString(i, (String) m.invoke(baseDo,null));
-//			    }else if (type.equals("class java.lang.Integer")) {
-//			    	m = baseDo.getClass().getMethod("get" + methodName, Integer.class);
-//					pstmt.setString(i, (String) m.invoke(baseDo,null));
-//			    }else if (type.equals("class java.lang.Double")) {
-//			    	m = baseDo.getClass().getMethod("get" + methodName, Double.class);
-//					pstmt.setString(i, (String) m.invoke(baseDo,null));
-//			    }else if (type.equals("class java.util.Date")) {
-//			    	m = baseDo.getClass().getMethod("get" + methodName, Date.class);
-//					pstmt.setString(i, (String) m.invoke(baseDo,null));
-//			    	
-//			    }
-//					
-//			}
-//			id = pstmt.executeUpdate();
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return id;
-//	}
 	protected List findListBySql(Object obj,String sql) {
 		if (conn == null)
 			return null;

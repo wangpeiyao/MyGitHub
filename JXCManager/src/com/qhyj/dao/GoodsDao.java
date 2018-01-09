@@ -1,8 +1,9 @@
 package com.qhyj.dao;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
-import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.GoodsDo;
 
 public class GoodsDao extends BaseDao{
@@ -26,6 +27,10 @@ public class GoodsDao extends BaseDao{
 		}
 		List list = findListBySql(new GoodsDo(), "SELECT * FROM T_GOODS WHERE GID="+gid);
 		return null==list?null:(GoodsDo)list.get(0);
+	}
+	
+	public List getGoodsListByMap(Map map) {
+		return super.getListByMap("SELECT * FROM T_GOODS",map,new GoodsDo());
 	}
 	
 	public int deleteGoods(int gid) {

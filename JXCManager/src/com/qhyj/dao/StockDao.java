@@ -20,6 +20,15 @@ public class StockDao extends BaseDao{
 		}
 		StockDo stockDo1 = getStockByGidDate(stockDo.getGid(),stockDo.getSdate());
 		if(null==stockDo1) {
+			int currStock = getCurrStockByGid(stockDo.getGid());
+			if(1==flag) {
+				stockDo.setLavenum(currStock+stockDo.getLavenum());
+			}else if(2==flag) {
+				if(stockDo1.getLavenum()<stockDo.getLavenum()) {
+					throw new RuntimeException("¿â´æ²»¹»");
+				}
+				stockDo.setLavenum(currStock-stockDo.getLavenum());
+			}
 			Integer id = super.insert(stockDo.getInsertSql());
 			stockDo.setSid(id);
 		}else {

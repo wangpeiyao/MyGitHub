@@ -2,6 +2,7 @@ package com.qhyj.ui.login;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -23,8 +24,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -33,6 +32,7 @@ import com.qhyj.Const;
 public class LoginFrame {
 	private JPanel sysManagePanel;
 	private JDesktopPane desktopPane;
+	private JTabbedPane navigationPanel;
 	private JFrame frame;
 	private JLabel backLabel;
 	// 创建窗体的Map类型集合对象
@@ -56,7 +56,7 @@ public class LoginFrame {
 		desktopPane = new JDesktopPane();
 		desktopPane.add(backLabel, new Integer(Integer.MIN_VALUE));
 		frame.getContentPane().add(desktopPane);
-		JTabbedPane navigationPanel = createNavigationPanel(); // 创建导航标签面板
+		navigationPanel = createNavigationPanel(); // 创建导航标签面板
 		frame.getContentPane().add(navigationPanel, BorderLayout.NORTH);
 		frame.setVisible(true);
 	}
@@ -64,15 +64,12 @@ public class LoginFrame {
 	private JTabbedPane createNavigationPanel() { // 创建导航标签面板的方法
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.setFocusable(false);
-//		tabbedPane.setBackground(new Color(211, 230, 192));
 		tabbedPane.setBackground(new Color(223, 222, 224));
 		tabbedPane.setBorder(new BevelBorder(BevelBorder.RAISED));
 
 		JPanel baseManagePanel = new JPanel(); // 基础信息管理面板
-//		baseManagePanel.setBackground(new Color(223, 222, 224));
 		baseManagePanel.setBackground(new Color(223, 222, 224));
-		baseManagePanel.setLayout(new BoxLayout(baseManagePanel,
-				BoxLayout.X_AXIS));
+		baseManagePanel.setLayout(new BoxLayout(baseManagePanel,BoxLayout.X_AXIS));
 		baseManagePanel.add(createFrameButton("客户信息管理", "CustomTreeFrame"));
 		baseManagePanel.add(createFrameButton("商品信息管理", "GoodsFrame"));
 		baseManagePanel.add(createFrameButton("返利规则管理", "RebateFrame"));
@@ -81,38 +78,32 @@ public class LoginFrame {
 		
 		JPanel depotManagePanel = new JPanel(); // 库存管理面板
 		depotManagePanel.setBackground(new Color(223, 222, 224));
-//		depotManagePanel.setBackground(Color.WHITE);
-		depotManagePanel.setLayout(new BoxLayout(depotManagePanel,
-				BoxLayout.X_AXIS));
+		depotManagePanel.setLayout(new BoxLayout(depotManagePanel,BoxLayout.X_AXIS));
 		depotManagePanel.add(createFrameButton("库存盘点", "KuCunPanDian"));
 
 		JPanel sellManagePanel = new JPanel();// 销售管理面板
 		sellManagePanel.setBackground(new Color(223, 222, 224));
-		sellManagePanel.setLayout(new BoxLayout(sellManagePanel,
-				BoxLayout.X_AXIS));
+		sellManagePanel.setLayout(new BoxLayout(sellManagePanel,BoxLayout.X_AXIS));
 		sellManagePanel.add(createFrameButton("销售单", "SellOrderFrame"));
 
 		JPanel searchStatisticPanel = new JPanel();// 查询统计面板
 		searchStatisticPanel.setBounds(0, 0, 600, 41);
 		searchStatisticPanel.setName("searchStatisticPanel");
 		searchStatisticPanel.setBackground(new Color(223, 222, 224));
-		searchStatisticPanel.setLayout(new BoxLayout(searchStatisticPanel,
-				BoxLayout.X_AXIS));
-		searchStatisticPanel.add(createFrameButton("商品信息查询", "ShangPinChaXun"));
+		searchStatisticPanel.setLayout(new BoxLayout(searchStatisticPanel,BoxLayout.X_AXIS));
+		searchStatisticPanel.add(createFrameButton("商品信息查询", "QryGoodsFrame"));
 		searchStatisticPanel.add(createFrameButton("销售信息查询", "XiaoShouChaXun"));
-		searchStatisticPanel.add(createFrameButton("入库查询", "RuKuChaXun"));
+		searchStatisticPanel.add(createFrameButton("进货信息查询", "RuKuChaXun"));
 		searchStatisticPanel.add(createFrameButton("销售排行", "XiaoShouPaiHang"));
 
 		JPanel stockManagePanel = new JPanel();// 进货管理面板
 		stockManagePanel.setBackground(new Color(223, 222, 224));
-		stockManagePanel.setLayout(new BoxLayout(stockManagePanel,
-				BoxLayout.X_AXIS));
+		stockManagePanel.setLayout(new BoxLayout(stockManagePanel,BoxLayout.X_AXIS));
 		stockManagePanel.add(createFrameButton("进货单", "BuyOrderFrame"));
 
 		sysManagePanel = new JPanel();// 系统管理面板
 		sysManagePanel.setBackground(new Color(223, 222, 224));
-		sysManagePanel
-				.setLayout(new BoxLayout(sysManagePanel, BoxLayout.X_AXIS));
+		sysManagePanel.setLayout(new BoxLayout(sysManagePanel, BoxLayout.X_AXIS));
 		sysManagePanel.add(createFrameButton("操作员管理", "CzyGL"));
 		sysManagePanel.add(createFrameButton("更改密码", "GengGaiMiMa"));
 		sysManagePanel.add(createFrameButton("权限管理", "QuanManager"));
@@ -210,6 +201,12 @@ public class LoginFrame {
 			if (jf.getDesktopPane() == null) {
 				desktopPane.add(jf);
 				jf.setVisible(true);
+			}
+			if(frameName.startsWith("Qry")) {
+				Toolkit toolkit = Toolkit.getDefaultToolkit();
+				int x = (int)(toolkit.getScreenSize().getWidth()-jf.getWidth())/2;
+				int y = (int)(toolkit.getScreenSize().getHeight()-jf.getHeight()-navigationPanel.getHeight())/2;
+				jf.setLocation(x, y);
 			}
 			try {
 				jf.setSelected(true);
