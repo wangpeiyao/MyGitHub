@@ -24,14 +24,14 @@ public class Login extends JFrame {
 	private JButton login;
 	private static UserDo user;
 	public Login() {
-		setTitle("欢迎使用"+Const.TITILESTR+"库存管理系统");
+		setTitle("欢迎使用"+Const.TITILESTR+"订单管理系统");
 		final JPanel panel = new LoginPanel();
 		panel.setLayout(null);
-		ImageIcon imageIcon = new ImageIcon("res/icon.jpg");  
+		ImageIcon imageIcon = new ImageIcon(getClass().getResource("/res/MyStock.png"));  
 
         // 设置标题栏的图标为face.gif  
         this.setIconImage(imageIcon.getImage());  
-
+        
 		getContentPane().add(panel);
 		setBounds(300, 200, panel.getWidth(), panel.getHeight());
 		userLabel = new JLabel();
@@ -82,7 +82,15 @@ public class Login extends JFrame {
 		panel.add(exit);
 		setVisible(true);
 //		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	}
+	private void setClosable(boolean b) {
+		// TODO Auto-generated method stub
+		
+	}
+	private void setIconifiable(boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 	public static UserDo getUser() {
 		return user;

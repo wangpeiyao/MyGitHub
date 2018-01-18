@@ -1,9 +1,13 @@
 package com.qhyj.ui.login;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyVetoException;
@@ -11,8 +15,6 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -24,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
@@ -38,11 +41,11 @@ public class LoginFrame {
 	// 创建窗体的Map类型集合对象
 	private Map<String, JInternalFrame> ifs = new HashMap<String, JInternalFrame>();
 	public LoginFrame() {
-		frame = new JFrame("欢迎使用"+Const.TITILESTR+"库存管理系统");
-		ImageIcon imageIcon = new ImageIcon("res/icon.jpg");  
+		frame = new JFrame("欢迎使用"+Const.TITILESTR+"订单管理系统");
+		ImageIcon imageIcon = new ImageIcon(getClass().getResource("/res/MyStock.png"));  
         // 设置标题栏的图标为face.gif  
 		frame.setIconImage(imageIcon.getImage()); 
-		frame.getContentPane().setBackground(Color.WHITE);
+		frame.getContentPane().setBackground(new Color(223, 222, 224));
 		frame.addComponentListener(new FrameListener());
 		frame.getContentPane().setLayout(new BorderLayout());
 //		frame.setBounds(100, 100, 800, 600);
@@ -59,6 +62,7 @@ public class LoginFrame {
 		navigationPanel = createNavigationPanel(); // 创建导航标签面板
 		frame.getContentPane().add(navigationPanel, BorderLayout.NORTH);
 		frame.setVisible(true);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 	}
 
 	private JTabbedPane createNavigationPanel() { // 创建导航标签面板的方法
@@ -92,9 +96,9 @@ public class LoginFrame {
 		searchStatisticPanel.setBackground(new Color(223, 222, 224));
 		searchStatisticPanel.setLayout(new BoxLayout(searchStatisticPanel,BoxLayout.X_AXIS));
 		searchStatisticPanel.add(createFrameButton("商品信息查询", "QryGoodsFrame"));
-		searchStatisticPanel.add(createFrameButton("销售信息查询", "XiaoShouChaXun"));
-		searchStatisticPanel.add(createFrameButton("进货信息查询", "RuKuChaXun"));
-		searchStatisticPanel.add(createFrameButton("销售排行", "XiaoShouPaiHang"));
+		searchStatisticPanel.add(createFrameButton("销售信息查询", "QrySellOrderFrame"));
+		searchStatisticPanel.add(createFrameButton("进货信息查询", "QryBuyOrderFrame"));
+		searchStatisticPanel.add(createFrameButton("客户订单查询", "QryCustomOrderFrame"));
 
 		JPanel stockManagePanel = new JPanel();// 进货管理面板
 		stockManagePanel.setBackground(new Color(223, 222, 224));
@@ -104,45 +108,86 @@ public class LoginFrame {
 		sysManagePanel = new JPanel();// 系统管理面板
 		sysManagePanel.setBackground(new Color(223, 222, 224));
 		sysManagePanel.setLayout(new BoxLayout(sysManagePanel, BoxLayout.X_AXIS));
-		sysManagePanel.add(createFrameButton("操作员管理", "CzyGL"));
+		sysManagePanel.add(createFrameButton("操作员管理", "AddUserFrame"));
 		sysManagePanel.add(createFrameButton("更改密码", "GengGaiMiMa"));
-		sysManagePanel.add(createFrameButton("权限管理", "QuanManager"));
+//		sysManagePanel.add(createFrameButton("权限管理", "QuanManager"));
 
 		tabbedPane.addTab("   基础信息管理   ", null, baseManagePanel, "基础信息管理");
 		tabbedPane.addTab("   进货管理   ", null, stockManagePanel, "进货管理");
 		tabbedPane.addTab("   销售管理   ", null, sellManagePanel, "销售管理");
 		tabbedPane.addTab("   查询统计   ", null, searchStatisticPanel, "查询统计");
-		tabbedPane.addTab("   库存管理   ", null, depotManagePanel, "库存管理");
+//		tabbedPane.addTab("   库存管理   ", null, depotManagePanel, "库存管理");
 		tabbedPane.addTab("   系统管理   ", null, sysManagePanel, "系统管理");
 
 		return tabbedPane;
 	}
 	/** *********************辅助方法************************* */
+//	// 为内部窗体添加Action的方法
+//	private JButton createFrameButton(String fName, String cname) {
+//		String imgUrl = "res/ActionIcon/" + fName + ".png";
+//		String imgUrl_roll = "res/ActionIcon/" + fName	+ "_roll.png";
+//		String imgUrl_down = "res/ActionIcon/" + fName	+ "_down.png";
+//		Icon icon = new ImageIcon(imgUrl);
+//		Icon icon_roll = null;
+//		if (imgUrl_roll != null)
+//			icon_roll = new ImageIcon(imgUrl_roll);
+//		Icon icon_down = null;
+//		if (imgUrl_down != null)
+//			icon_down = new ImageIcon(imgUrl_down);
+//		Action action = new openFrameAction(fName, cname, icon);
+//		JButton button = new JButton(action);
+//		button.setText("查询");
+//		button.setMargin(new Insets(0, 0, 0, 0));
+//		button.setHideActionText(true);
+//		button.setFocusPainted(false);
+//		button.setBorderPainted(false);
+//		button.setContentAreaFilled(false);
+//		if (icon_roll != null)
+//			button.setRolloverIcon(icon_roll);
+//		if (icon_down != null)
+//			button.setPressedIcon(icon_down);
+//		return button;
+//	}
 	// 为内部窗体添加Action的方法
-	private JButton createFrameButton(String fName, String cname) {
-		String imgUrl = "res/ActionIcon/" + fName + ".png";
-		String imgUrl_roll = "res/ActionIcon/" + fName	+ "_roll.png";
-		String imgUrl_down = "res/ActionIcon/" + fName	+ "_down.png";
-		Icon icon = new ImageIcon(imgUrl);
-		Icon icon_roll = null;
-		if (imgUrl_roll != null)
-			icon_roll = new ImageIcon(imgUrl_roll);
-		Icon icon_down = null;
-		if (imgUrl_down != null)
-			icon_down = new ImageIcon(imgUrl_down);
-		Action action = new openFrameAction(fName, cname, icon);
-		JButton button = new JButton(action);
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setHideActionText(true);
-		button.setFocusPainted(false);
-		button.setBorderPainted(false);
-		button.setContentAreaFilled(false);
-		if (icon_roll != null)
-			button.setRolloverIcon(icon_roll);
-		if (icon_down != null)
-			button.setPressedIcon(icon_down);
-		return button;
-	}
+		private JButton createFrameButton(String fName, String cname) {
+			String imgUrl = "/res/ActionIcon/button1.png";
+			String imgUrl_roll = "res/ActionIcon/button1.png";
+			String imgUrl_down = "res/ActionIcon/button2.png";
+			Icon icon = new ImageIcon(getClass().getResource(imgUrl));
+			Image image = ((ImageIcon) icon).getImage(); // 但这个图片太大不适合做Icon
+			// 为把它缩小点，先要取出这个Icon的image ,然后缩放到合适的大小
+			Image smallImage = image.getScaledInstance(150, 46, Image.SCALE_FAST);
+			// 再由修改后的Image来生成合适的Icon
+			ImageIcon smallIcon = new ImageIcon(smallImage);
+			
+			Icon icon_roll = null;
+			if (imgUrl_roll != null)
+			{}
+//				icon_roll = new ImageIcon(imgUrl_roll);
+			Icon icon_down = null;
+			if (imgUrl_down != null)
+				icon_down = new ImageIcon(imgUrl_down);
+			ActionListener buttonListener = new openFrameListener(cname);
+			JButton button = new JButton(fName, smallIcon);
+			
+			button.addActionListener(buttonListener);
+			//设置字体大小和颜色
+			button.setFont(new Font("黑体", Font.LAYOUT_LEFT_TO_RIGHT, 14));
+			button.setForeground(Color.WHITE);
+			button.setPreferredSize(new Dimension(150,50));//设置尺寸
+			button.setHorizontalTextPosition(SwingConstants.CENTER); 
+            button.setVerticalTextPosition(JButton.CENTER);
+			button.setMargin(new Insets(0, 0, 0, 0));
+			button.setFocusPainted(false);
+			button.setBorderPainted(false);
+			button.setContentAreaFilled(false);
+			if (icon_roll != null)
+				button.setRolloverIcon(icon_roll);
+			if (icon_down != null)
+				button.setPressedIcon(icon_down);
+			
+			return button;
+		}
 	// 获取内部窗体的唯一实例对象
 	private JInternalFrame getIFrame(String frameName) {
 		JInternalFrame jf = null;
@@ -179,15 +224,16 @@ public class LoginFrame {
 		}
 	}
 	// 主窗体菜单项的单击事件监听器
-	protected final class openFrameAction extends AbstractAction {
+	protected class openFrameListener implements ActionListener {
 		private String frameName = null;
-		private openFrameAction() {
+		private openFrameListener() {
 		}
-		public openFrameAction(String cname, String frameName, Icon icon) {
+		public openFrameListener(String frameName) {
 			this.frameName = frameName;
-			putValue(Action.NAME, cname);
-			putValue(Action.SHORT_DESCRIPTION, cname);
-			putValue(Action.SMALL_ICON, icon);
+//			putValue(Action.NAME, cname);
+//			putValue(Action.SHORT_DESCRIPTION, cname);
+//			putValue(Action.SMALL_ICON, icon);
+			
 		}
 		public void actionPerformed(final ActionEvent e) {
 			JInternalFrame jf = getIFrame(frameName);

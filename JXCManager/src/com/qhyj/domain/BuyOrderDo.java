@@ -120,7 +120,7 @@ public class BuyOrderDo extends BaseDo{
 
 	@Override
 	public String getInsertSql() {
-		return "INSERT INTO T_BUY_ORDER(GID,ORDERDATE,COUNT,AMOUNT,SUMAMOUNT,MEMO,CREATETIME,LASTUPDATETIME,SELLNUM)VALUES("+this.gid
+		return "INSERT INTO T_BUY_ORDER(GID,ORDERDATE,COUNT,AMOUNT,SUMAMOUNT,MEMO,CREATETIME,LASTUPDATETIME,BUYNUM)VALUES("+this.gid
 				+",'"+DateUtil.fmtDateToYMD(this.orderDate)+"',"+this.count+","+this.amount+","+this.sumAmount+",'"+this.memo+"',GETDATE(),GETDATE(),'"+this.buyNum+"')";
 	}
 

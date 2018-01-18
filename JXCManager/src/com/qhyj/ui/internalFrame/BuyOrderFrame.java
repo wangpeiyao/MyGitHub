@@ -125,7 +125,7 @@ public class BuyOrderFrame extends JInternalFrame {
 		tjButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// 初始化票号
-				initPiaoHao();
+//				initPiaoHao();
 				// 结束表格中没有编写的单元
 				stopTableCellEditing();
 				// 如果表格中还包含空行，就再添加新行
@@ -197,6 +197,7 @@ public class BuyOrderFrame extends JInternalFrame {
 				pzs.setText("0");
 				hpzs.setText("0");
 				hjje.setText("0");
+				memo.setText("");
 			}
 		});
 		setupComponet(sellButton, 5, 4, 1, 1, false);
@@ -266,7 +267,7 @@ public class BuyOrderFrame extends JInternalFrame {
 	// 初始化商品下拉选择框
 	private void initSpBox() {
 		List list = new ArrayList();
-		List goodsList = MainController.getInstance().getHavStockGoodsList();//需要取库存大于0的商票
+		List goodsList = MainController.getInstance().getAllGoodsList();
 		sp.removeAllItems();
 		sp.addItem(new GoodsTableInfo());
 		for (int i = 0; table != null && i < table.getRowCount(); i++) {

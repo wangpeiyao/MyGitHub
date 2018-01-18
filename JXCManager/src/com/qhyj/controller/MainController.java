@@ -3,9 +3,12 @@ package com.qhyj.controller;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.qhyj.dao.BaseDao;
 import com.qhyj.dao.BuyOrderDao;
@@ -22,8 +25,10 @@ import com.qhyj.domain.RebateDo;
 import com.qhyj.domain.SellOrderDo;
 import com.qhyj.domain.StockDo;
 import com.qhyj.domain.UserDo;
+import com.qhyj.model.SellRebateModel;
 import com.qhyj.util.DateUtil;
 import com.qhyj.util.LogUtil;
+import com.qhyj.util.MapUtils;
 
 public class MainController {
 	
@@ -98,22 +103,23 @@ public class MainController {
 		return rebateDao.getRebateByGid(gid);
 	}
 	public static void main(String[] args) {
-		List list = new ArrayList();
-		RebateDo do1 = new RebateDo();
-		do1.setGid(2);
-		do1.setExpression("${amount}>1000${admoun}=11");
-		list.add(do1);
-		RebateDo do2 = new RebateDo();
-		do2.setGid(2);
-		do2.setExpression("11");
-		list.add(do2);
-		MainController.getInstance().selfTransaction("addRebateList",list);
-		System.out.println("执行成功");
-		
+		Map<String,SellRebateModel> map = new HashMap();
+		map.put("1", new SellRebateModel(2));
+		map.put("2", new SellRebateModel(4));
+		map.put("3", new SellRebateModel(5));
+		map.put("6", new SellRebateModel(8));
+		map.put("5", new SellRebateModel(6));
+		List<SellRebateModel> list= (List<SellRebateModel>)map.entrySet().stream().map(et ->et.getValue()).collect(Collectors.toList());
+		list.sort(Comparator.comparingInt(SellRebateModel::getCid));
+		list.forEach(obj-> System.out.println(obj.getCid()));
 	}
 	
 	public UserDo getUser(String userName,String passWord) {
 		return userDao.getUser(userName, passWord);
+	}
+	
+	public CustomDo getCustomById(int cid) {
+		return customDao.getCustom(cid);
 	}
 	
 	public List getCustomListByPrtId(Integer parentId) {
@@ -152,13 +158,14 @@ public class MainController {
 	 */
 	public List getHavStockGoodsList() {
 		List<GoodsDo> list =  goodsDao.getAllGoodsList();
+		List<GoodsDo> resList = new ArrayList();
 		for(GoodsDo goodsDo:list) {
 			Integer lavenum = getCurrStockByGid(goodsDo.getGid());
-			if(lavenum<1) {
-				list.remove(goodsDo);
+			if(lavenum>0) {
+				resList.add(goodsDo);
 			}
 		}
-		return list;
+		return resList;
 	}
 	public int getCurrStockByGid(int gid) {
 		return stockDao.getCurrStockByGid(gid);
@@ -166,9 +173,96 @@ public class MainController {
 	public String getSellMainMaxId(Date date) {
 		return sellOrderDao.getMaxSellNum(date);
 	}
+	public List<SellOrderDo> getSellOrderListByMap(Map map){
+		return sellOrderDao.getSellOrderListByMap(map);
+	}
+	public List<SellOrderDo> getBuyOrderListByMap(Map map){
+		return buyOrderDao.getBuyOrderListByMap(map);
+	}
 	public String getBuyMainMaxId(Date date) {
 		return buyOrderDao.getMaxBuyNum(date);
 	}
+	
+	public List getSellRebateListByMap(Map map) {
+		List<SellRebateModel> customList = null;
+		//取出每个客户每类产品买多少
+		if(new Integer(1).equals(MapUtils.getIntegerValByKey(map, "isInclude"))) {//包含下级
+			customList = sellOrderDao.getSellRebateList(map,false);
+			if(null==customList) {
+				return null;
+			}
+			List<SellRebateModel> includeChildCustomList = new ArrayList();
+			for(int i=0;i<customList.size();i++) {
+				map.put("cid", customList.get(i).getCid());
+				includeChildCustomList.addAll(sellOrderDao.getSellRebateList(map,true));
+			}
+			customList.clear();
+			customList = includeChildCustomList;
+		}else {
+			customList = sellOrderDao.getSellRebateList(map,false);
+		}
+		
+		if(null==customList) {
+			return null;
+		}
+		
+		//计算每个客户每类商品返利
+		Map<String,SellRebateModel> modelMap = new HashMap();
+		Map expMap = new HashMap();
+		for(SellRebateModel model:customList) {
+			String[] exps = null;
+			int gid = model.getGid();
+			int cid = model.getCid();
+			if(MapUtils.existObj(expMap, String.valueOf(gid))) {
+				exps = (String[]) expMap.get(String.valueOf(gid));
+			}else {
+				exps = rebateDao.getExpsByGid(gid);
+				expMap.put(String.valueOf(gid), exps);
+			}
+			double rebate = model.getRebate(exps);
+			model.setRebateAmount(rebate);
+			//汇总每个客户所有的商品
+			CustomDo customDo = customDao.getCustom(cid);
+			model.setCname(customDo.getCname());
+			if(MapUtils.existObj(modelMap, String.valueOf(gid))) {
+				SellRebateModel model1 = (SellRebateModel) modelMap.get(String.valueOf(cid));
+				model1.addSumAmount(model.getSumAmount());
+				model1.addSumCount(model.getSumCount());
+				model1.addRebateAmount(model.getRebateAmount());
+			}else {
+				modelMap.put(String.valueOf(cid), model);
+			}
+		}
+		List<SellRebateModel> sortList= (List<SellRebateModel>)modelMap.entrySet().stream().map(et->et.getValue()).collect(Collectors.toList());
+		
+		//根据单位排序
+		if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按数量排序
+			if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderFlag"))) {// 正序
+				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumCount).reversed());
+			} else {
+				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumCount));
+			}
+		} else if (new Integer(2).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按金额排序
+			if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderFlag"))) {// 正序
+				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumAmount).reversed());
+			} else {
+				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumAmount));
+			}
+		} else {
+			sortList.sort(Comparator.comparingDouble(SellRebateModel::getCid));
+		}
+		//取前多少名
+		if(MapUtils.existObj(map, "showCount")) {
+			int showCount = MapUtils.getIntegerValByKey(map, "showCount");
+			if(showCount<sortList.size()) {
+				List<SellRebateModel>  resList = sortList.subList(0,MapUtils.getIntegerValByKey(map, "showCount") ); 
+				return resList;
+			}
+		}
+		
+		return sortList;
+	}
+	
 	
 	public List getAllGoodsList() {
 		return goodsDao.getAllGoodsList();
@@ -192,7 +286,8 @@ public class MainController {
 	public void addSellOrderList(List<SellOrderDo> list) {
 		String sellNum = list.get(0).getSellNum();
 		Date orderDate =list.get(0).getOrderDate();
-		if(!sellNum.startsWith("XS"+DateUtil.fmtDateToYyyyMMDD(orderDate))) {
+		if(!sellNum.startsWith("XS"+DateUtil.fmtDateToYyyyMMDD(orderDate))
+				||sellNum.length()!=11) {
 			throw new RuntimeException("销售单与销售日期不匹配");
 		}
 		sellOrderDao.delSellOrderBySellNum(sellNum);
@@ -208,7 +303,8 @@ public class MainController {
 	public void addBuyOrderList(List<BuyOrderDo> list) {
 		String buyNum = list.get(0).getBuyNum();
 		Date orderDate =list.get(0).getOrderDate();
-		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))) {
+		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))
+				||buyNum.length()!=11) {
 			throw new RuntimeException("销售单与销售日期不匹配");
 		}
 		buyOrderDao.delBuyOrderByBuyNum(buyNum);

@@ -15,7 +15,7 @@ public class GoodsDao extends BaseDao{
 		return super.update("UPDATE T_GOODS SET GNAME=GETDATE(),GNAME='"+goodsDo.getGname()+"',SPEC='"+goodsDo.getSpec()
 		     +"',PLACE='"+goodsDo.getPlace()+"',ISREBATE="+goodsDo.getIsRebate()+",MEMO='"+goodsDo.getMemo()+"' WHERE GID="+goodsDo.getGid());
 	}
-	public List getAllGoodsList() {
+	public List<GoodsDo> getAllGoodsList() {
 		return findListBySql(new GoodsDo(), "SELECT * FROM T_GOODS");
 	}
 	public List getRebateGoodsList() {

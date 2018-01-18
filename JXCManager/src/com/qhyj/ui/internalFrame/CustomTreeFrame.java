@@ -168,6 +168,10 @@ public class CustomTreeFrame extends JInternalFrame {
   
         public void actionPerformed(ActionEvent e) {  
             String name = JOptionPane.showInputDialog("请输入客户名称："); 
+            if(null==name||name.trim().length()<1) {
+            	JOptionPane.showMessageDialog(CustomTreeFrame.this, "客户名称不能为空");
+            	return ;
+            }
 			CustomDo customDo = new CustomDo();
 			customDo.setCname(name);
 			Integer parentId = ((CustomNode)this.adaptee.getTree().getLastSelectedPathComponent()).getKey();
@@ -218,6 +222,10 @@ class TreeModifyViewMenuEvent implements ActionListener {
   
     public void actionPerformed(ActionEvent e) {  
         String name = JOptionPane.showInputDialog("请输入新客户名称：");  
+        if(null==name||name.trim().length()<1) {
+        	JOptionPane.showMessageDialog(adaptee, "客户名称不能为空");
+        	return ;
+        }
   
         CustomNode node = (CustomNode) this.adaptee.getTree().getSelectionPath().getLastPathComponent();  
         MainController.getInstance().updateCustomeName(node.getKey(),name);

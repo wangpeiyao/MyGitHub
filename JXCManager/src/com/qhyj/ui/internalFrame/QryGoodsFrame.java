@@ -22,7 +22,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
-import com.lzw.dao.Dao;
 import com.qhyj.controller.MainController;
 import com.qhyj.domain.GoodsDo;
 import com.qhyj.util.DateUtil;
@@ -72,7 +71,7 @@ public class QryGoodsFrame extends JInternalFrame {
 		final JButton queryButton = new JButton();
 		queryButton.addActionListener(new QueryAction((DefaultTableModel) table.getModel()));
 		setupComponet(queryButton, 4, 0, 1, 1, false);
-		queryButton.setText("查询");
+		queryButton.setText("筛选");
 
 		final JButton showAllButton = new JButton("显示全部数据");
 		showAllButton.addActionListener(new ActionListener() {

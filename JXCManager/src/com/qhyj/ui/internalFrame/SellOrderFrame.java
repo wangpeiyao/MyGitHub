@@ -135,7 +135,7 @@ public class SellOrderFrame extends JInternalFrame {
 		tjButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// 初始化票号
-				initPiaoHao();
+//				initPiaoHao();
 				// 结束表格中没有编写的单元
 				stopTableCellEditing();
 				// 如果表格中还包含空行，就再添加新行
@@ -164,7 +164,7 @@ public class SellOrderFrame extends JInternalFrame {
 				String id = piaoHao.getText();						// 票号
 				String memoStr = memo.getText();						// 票号
 				Integer kehuid = ((CustomItem)kehu.getSelectedItem()).getId();// 供应商名字
-				Date orderDate = DateUtil.fmtStrToDate(jhsj.getText(), "yyyy-mm-dd");
+				Date orderDate = DateUtil.fmtStrToDate(jhsj.getText(), "yyyy-MM-dd");
 				if(null==orderDate) {
 					JOptionPane.showMessageDialog(SellOrderFrame.this, "日期格式不正确");
 					return;

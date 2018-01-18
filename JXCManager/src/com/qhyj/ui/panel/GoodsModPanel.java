@@ -18,14 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import com.lzw.dao.Dao;
 import com.qhyj.controller.MainController;
 import com.qhyj.domain.GoodsDo;
 import com.qhyj.model.GoodsItem;
 
-import internalFrame.guanli.Item;
-import model.TbGysinfo;
-import model.TbSpinfo;
 public class GoodsModPanel extends JPanel {
 	private JComboBox gysQuanCheng;
 	private JTextField beiZhu;
@@ -191,10 +187,10 @@ public class GoodsModPanel extends JPanel {
 		selectedItem = (GoodsItem) sp.getSelectedItem();
 		GoodsDo goodsDo = MainController.getInstance().getGoodsById(selectedItem.getId());
 		if(null!=goodsDo) {
-			quanCheng.setText(goodsDo.getGname());
-			chanDi.setText(goodsDo.getPlace());
-			guiGe.setText(goodsDo.getSpec());
-			beiZhu.setText(goodsDo.getMemo());
+			quanCheng.setText(goodsDo.getGname().trim());
+			chanDi.setText(goodsDo.getPlace().trim());
+			guiGe.setText(goodsDo.getSpec().trim());
+			beiZhu.setText(goodsDo.getMemo().trim());
 			if(new Integer(0).equals(goodsDo.getIsRebate())) {
 				jrb2.setSelected(true);
 			}else if(new Integer(1).equals(goodsDo.getIsRebate())) {
