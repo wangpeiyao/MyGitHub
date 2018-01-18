@@ -10,6 +10,7 @@ public class CustomDo extends BaseDo{
 	private Date createtime;
 	private Date lastUpdateTime;
 	private Integer parentId;
+	private String treeno;
 	public Integer getCid() {
 		return cid;
 	}
@@ -40,10 +41,15 @@ public class CustomDo extends BaseDo{
 	public void setParentId(Integer parentId) {
 		this.parentId = parentId;
 	}
-	public String getInsertSql() {
-		return "INSERT INTO T_CUSTOM(CNAME,CREATETIME,LASTUPDATETIME,PARENTID) VALUES('"+this.getCname()+"',GETDATE(),GETDATE(),"+this.getParentId()+")";
+	
+	public String getTreeno() {
+		return treeno;
 	}
-	public String[] getFieldNames() {
-		return new String[] {"cname","createtime","lastUpdateTime","parentId"};
+	public void setTreeno(String treeno) {
+		this.treeno = treeno;
+	}
+	public String getInsertSql() {
+		return "INSERT INTO T_CUSTOM(CNAME,CREATETIME,LASTUPDATETIME,PARENTID,TREENO) VALUES('"+this.getCname()+"',GETDATE(),GETDATE(),"+
+	          this.getParentId()+","+this.treeno+")";
 	}
 }

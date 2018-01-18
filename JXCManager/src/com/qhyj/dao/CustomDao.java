@@ -17,7 +17,7 @@ public class CustomDao extends BaseDao{
 	public List getCustomListByPrtId(Integer parentId) {
 		String sql = null;
 		if(null==parentId) {
-			sql =  "SELECT * FROM T_CUSTOM WHERE PARENTID IS NULL";
+			sql =  "SELECT * FROM T_CUSTOM WHERE PARENTID IS NULL OR PARENTID=0";
 		}else{
 			sql = "SELECT * FROM T_CUSTOM WHERE PARENTID="+parentId;
 		}

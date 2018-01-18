@@ -41,14 +41,18 @@ public class DownLoad implements ActionListener{
 	JButton button1 = new JButton("...");// 选择
 	JFileChooser jfc1 = new JFileChooser();// 文件选择器
 	JFileChooser jfc2 = new JFileChooser();// 文件选择器
-	JLabel label = new JLabel("文件名称：电票第二轮验收测试案例_V1.0.xls");
+	JLabel label = new JLabel("文件名称："+fileName);
 	JButton button3 = new JButton("确定");// 下载按钮
 	JTextField jTextField1 = new JTextField();
 
 	DownLoad( Container parentPanel,List<Map<String,Object>> dataList,String[] fields,String[] keys,String fileName) {
+		this.fileName=fileName;
+		this.keys=keys;
+		this.dataList=dataList;
+		this.fields=fields;
 		double lx = parentPanel.getWidth();
 		double ly = parentPanel.getHeight();
-//		frame.setLocation(new Point((int) (lx / 2) - 200, (int) (ly / 2) - 200));// 设定窗口出现位置
+		frame.setLocation(new Point((int) (lx / 2) - 200, (int) (ly / 2) - 200));// 设定窗口出现位置
 		frame.setSize(300, 200);// 设定窗口大小
 //		frame.setLocationRelativeTo(null);
 		frame.setContentPane(tabPane);// 设置布局
@@ -66,19 +70,29 @@ public class DownLoad implements ActionListener{
 		con.add(text1);
 		con.add(button1);
 		con.add(button3);
-		frame.setVisible(true);// 窗口可见
+		
+		
+//		try {
+////			frame.setSelected(true);
+//		} catch (PropertyVetoException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 //		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);// 使能关闭窗口，结束程序
 		tabPane.add("导出页面", con);// 添加布局1
 		
-		parentPanel.add(frame,Integer.MAX_VALUE);
-		try {
-			frame.setIconifiable(true);
-			frame.setClosable(true);
-			frame.setSelected(true);
-		} catch (PropertyVetoException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		parentPanel.add(frame);
+		parentPanel.getParent().add(frame);
+		frame.setClosable(true);
+		frame.setVisible(true);// 窗口可见
+//		try {
+////			frame.setIconifiable(true);
+////			frame.setClosable(true);
+////			frame.setSelected(true);
+//		} catch (PropertyVetoException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	    /** 
@@ -108,7 +122,6 @@ public class DownLoad implements ActionListener{
 	    /**
 	     * 
 	     * @param from_file_name  源文件名
-	     * @param path 源文件路径
 	     * @param to_path 目标路径
 	     * @throws IOException
 	     */

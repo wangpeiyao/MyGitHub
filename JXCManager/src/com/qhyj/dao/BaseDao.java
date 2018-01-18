@@ -14,14 +14,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.microsoft.sqlserver.jdbc.SQLServerException;
 import com.qhyj.domain.BaseDo;
 import com.qhyj.util.DateUtil;
 
 public abstract class BaseDao {
 	protected static String dbClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-	protected static String dbUrl = "jdbc:sqlserver://127.0.0.1:1433;databaseName=jcxdb";
+	protected static String dbUrl = "jdbc:sqlserver://127.0.0.1:1433;databaseName=JXCDB";
 	protected static String dbUser = "sa";
-	protected static String dbPwd = "sa";
+	protected static String dbPwd = "11111111";
 	public static Connection conn = null;
 	static {
 		try {
@@ -30,6 +31,8 @@ public abstract class BaseDao {
 				conn = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
 				if(conn!=null) {
 					System.out.println("数据库连接成功");
+				}else {
+					throw new RuntimeException("数据库连接失败");
 				}
 			}
 		} catch (Exception ee) {
@@ -69,8 +72,11 @@ public abstract class BaseDao {
 		ResultSet set = executeSql(sql);
 		String baseId = null;
 		try {
-			if (set.next())
-				baseId = set.getString(1).trim();
+			if (set.next()) {
+				if(null!=set.getString(1)) {
+					baseId = set.getString(1).trim();
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -80,11 +86,8 @@ public abstract class BaseDao {
 		return id;
 	}
 	public static void main(String[] args) {
-		SellOrderDao baseDao = new SellOrderDao();
-		baseDao.getMainTypeTableMaxId(DateUtil.fmtStrToDate("2018-01-07"), "T_SELL_ORDER", "XS", "SELLNUM");
-		String baseId = "XS20180107001";
-		baseId = baseId == null ? "000" : baseId.substring(baseId.length() - 3);
-		System.out.println(baseId.substring(baseId.length() - 3));
+		String str=": 列名 Cname 无效。";
+		System.out.println(str.indexOf("列名%无效"));
 		
 	}
 	public List getListByMap(String sql,Map map,BaseDo baseDo) {
@@ -156,31 +159,38 @@ public abstract class BaseDao {
 					String name = field.getName(); // 获取属性的名字
 		            name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
 				    String type = field.getGenericType().toString(); 
-				    if (type.equals("class java.lang.String")) { // 如果type是类类型，则前面包含"class "，后面跟类名
-				    	value = rs.getString(name);
-	                    if (value != null) {
-	                    	m = newObj.getClass().getMethod("set"+name,String.class);
-	                        m.invoke(newObj, value);
-	                    }
-	                }else if (type.equals("class java.lang.Integer")) {
-	                	value = rs.getInt(name);
-	                    if (value != null) {
-	                        m = newObj.getClass().getMethod("set"+name,Integer.class);
-	                        m.invoke(newObj, value);
-	                    }
-	                }else if (type.equals("class java.lang.Double")) {
-	                	value = rs.getDouble(name);
-	                    if (value != null) {
-	                        m = newObj.getClass().getMethod("set"+name,Double.class);
-	                        m.invoke(newObj, value);
-	                    }
-	                }else if (type.equals("class java.util.Date")) {
-	                	value = rs.getDate(name);
-	                    if (value != null) {
-	                        m = newObj.getClass().getMethod("set"+name,Date.class);
-	                        m.invoke(newObj, value);
-	                    }
-	                }
+				    try {
+					    if (type.equals("class java.lang.String")) { // 如果type是类类型，则前面包含"class "，后面跟类名
+					    	value = rs.getString(name);
+		                    if (value != null) {
+		                    	m = newObj.getClass().getMethod("set"+name,String.class);
+		                        m.invoke(newObj, value);
+		                    }
+		                }else if (type.equals("class java.lang.Integer")) {
+		                	value = rs.getInt(name);
+		                    if (value != null) {
+		                        m = newObj.getClass().getMethod("set"+name,Integer.class);
+		                        m.invoke(newObj, value);
+		                    }
+		                }else if (type.equals("class java.lang.Double")) {
+		                	value = rs.getDouble(name);
+		                    if (value != null) {
+		                        m = newObj.getClass().getMethod("set"+name,Double.class);
+		                        m.invoke(newObj, value);
+		                    }
+		                }else if (type.equals("class java.util.Date")) {
+		                	value = rs.getTimestamp(name);
+		                    if (value != null) {
+		                        m = newObj.getClass().getMethod("set"+name,Date.class);
+		                        m.invoke(newObj, value);
+		                    }
+		                }
+				    }catch(SQLServerException e) {
+				    	if(!((e.getMessage().indexOf("列名")>-1)
+				    			&&(e.getMessage().indexOf("无效")>-1))) {
+				    		throw e;
+				    	}
+				    }
 				}
 				list.add(newObj);
 				

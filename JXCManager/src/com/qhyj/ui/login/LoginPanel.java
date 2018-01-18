@@ -10,8 +10,7 @@ public class LoginPanel extends JPanel {
 	public int width,height;
 	public LoginPanel() {
 		super();
-		URL path = this.getClass().getResource("res/login.jpg");
-		icon = new ImageIcon("res/login.jpg");
+		icon = new ImageIcon(getClass().getResource("/res/login.jpg"));
 		width = icon.getIconWidth();
 		height = icon.getIconHeight();
 		setSize(width, height);
