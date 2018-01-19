@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -24,7 +25,9 @@ import javax.swing.table.DefaultTableModel;
 import com.qhyj.controller.MainController;
 import com.qhyj.domain.BuyOrderDo;
 import com.qhyj.domain.CustomDo;
+import com.qhyj.domain.GoodsDo;
 import com.qhyj.domain.SellOrderDo;
+import com.qhyj.model.GoodsItem;
 import com.qhyj.util.DateUtil;
 import com.qhyj.util.LogUtil;
 public class QryBuyOrderFrame extends JInternalFrame {
@@ -32,6 +35,7 @@ public class QryBuyOrderFrame extends JInternalFrame {
 	private JTextField sDateField;
 	private JTextField eDateField;
 	private JTextField buyOrderNumField;
+	private JComboBox goodBox;
 	public QryBuyOrderFrame() {
 		super();
 		setIconifiable(true);
@@ -68,22 +72,30 @@ public class QryBuyOrderFrame extends JInternalFrame {
 		eDateField = new JTextField(DateUtil.getToDayStr());
 		setupComponet(eDateField,3 , 0, 1, 30, false);
 		
-		setupComponet(new JLabel(" 进货单号："), 4, 0, 1, 1, false);
+		setupComponet(new JLabel(" 商品："), 4, 0, 1, 1, false);
+		goodBox = new JComboBox(); // 客户
+		initGoodBox();
+		goodBox.setPreferredSize(new Dimension(120, 21));
+		goodBox.setMaximumSize(new Dimension(120,21));
+		goodBox.setMinimumSize(new Dimension(120,21));
+		setupComponet(goodBox,5, 0, 1, 1, false);
+		
+		setupComponet(new JLabel(" 进货单号："), 6, 0, 1, 1, false);
 		buyOrderNumField = new JTextField();
-		setupComponet(buyOrderNumField,5 , 0, 1, 120, false);
+		setupComponet(buyOrderNumField,7 , 0, 1, 120, false);
 		
 
 
 		final JButton queryButton = new JButton();
 		queryButton.addActionListener(new QueryAction((DefaultTableModel) table.getModel()));
-		setupComponet(queryButton, 6, 0, 1, 1, false);
+		setupComponet(queryButton, 8, 0, 1, 1, false);
 		queryButton.setText("查询");
 
-		final JButton exportButton = new JButton("导出数据");
+		final JButton exportButton = new JButton("导出");
 		exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				String[] keys = new String[]{"序号","进货单号", "数量", "单价","金额","备注","创建时间","最后更新时间"};
-				String[] files = new String[] {"id","sumnum","count","amount","sumamount","memo","createtime","lastupdatetime"};
+				String[] keys = new String[]{"序号","进货单号","商品","数量", "单价","金额","备注","创建时间","最后更新时间"};
+				String[] files = new String[] {"id","buynum","gname","count","amount","sumamount","memo","createtime","lastupdatetime"};
 				DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 				int rowCount = tableModel.getRowCount();
 				List<Map<String,Object>> dataList = new ArrayList<Map<String,Object>>();
@@ -98,26 +110,43 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			}
 		});
 		
-		setupComponet(exportButton, 7, 0, 1, 1, false);
+		setupComponet(exportButton, 9, 0, 1, 1, false);
 //		pack();
 	}
 	private void initTableModel(JTable table) {
 		table.setEnabled(false);
 		table.setSize(new Dimension(850, 400));
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		String[] tableHeads = new String[]{"序号","进货单号", "数量", "单价","金额","备注","创建时间","最后更新时间"};
+		String[] tableHeads = new String[]{"序号","进货单号", "商品","数量", "单价","金额","备注","创建时间","最后更新时间"};
 		((DefaultTableModel) table.getModel()).setColumnIdentifiers(tableHeads);
 		//设置列宽
 		table.getColumnModel().getColumn(0).setPreferredWidth(10);
-		table.getColumnModel().getColumn(1).setPreferredWidth(80);
-		table.getColumnModel().getColumn(2).setPreferredWidth(30);
-		table.getColumnModel().getColumn(3).setPreferredWidth(20);
-		table.getColumnModel().getColumn(4).setPreferredWidth(40);
-		table.getColumnModel().getColumn(5).setPreferredWidth(150);
-		table.getColumnModel().getColumn(6).setPreferredWidth(100);
+		table.getColumnModel().getColumn(1).setPreferredWidth(50);
+		table.getColumnModel().getColumn(2).setPreferredWidth(50);
+		table.getColumnModel().getColumn(3).setPreferredWidth(30);
+		table.getColumnModel().getColumn(4).setPreferredWidth(20);
+		table.getColumnModel().getColumn(5).setPreferredWidth(40);
+		table.getColumnModel().getColumn(6).setPreferredWidth(150);
 		table.getColumnModel().getColumn(7).setPreferredWidth(100);
+		table.getColumnModel().getColumn(8).setPreferredWidth(100);
 	}
-	
+	private void initGoodBox() {// 初始化商品字段
+		List list = MainController.getInstance().getAllGoodsList();
+		GoodsItem allitem = new GoodsItem();
+		allitem.setId(0);
+		allitem.setName("全部");
+		goodBox.addItem(allitem);
+		if(null==list) {
+			return ;
+		}
+		for (int i=0;i<list.size();i++) {                                                                                                                                                               
+			GoodsDo goodsDo=(GoodsDo) list.get(i); 
+			GoodsItem item = new GoodsItem();
+			item.setId(goodsDo.getGid());
+			item.setName(goodsDo.getGname());
+			goodBox.addItem(item);
+		}
+	}
 	private void updateTable(List list,final DefaultTableModel dftm) {
 		int num = dftm.getRowCount();
 		for (int i = 0; i < num; i++) {
@@ -129,6 +158,8 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			Vector rowData = new Vector();
 			rowData.add((i+1));
 			rowData.add(buyOrderDo.getBuyNum());
+			GoodsDo goodsDo = MainController.getInstance().getGoodsById(buyOrderDo.getGid());
+			rowData.add(goodsDo.getGname());
 			rowData.add(buyOrderDo.getCount());
 			rowData.add(buyOrderDo.getAmount());
             rowData.add(buyOrderDo.getSumAmount());
@@ -164,16 +195,19 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			Date sDate = null;
 			Date eDate = null;
 			String sellOrderNum= null;
+			Integer gid = null;
 			try {
 				sDate = DateUtil.fmtStrToDate(eDateField.getText(),"yyyy-MM-dd");
 				eDate = DateUtil.fmtStrToDate(eDateField.getText(),"yyyy-MM-dd");
 				sellOrderNum = buyOrderNumField.getText();
+				gid = ((GoodsItem)goodBox.getSelectedItem()).getId();
 			}catch (Exception e1) {
 				e1.getMessage();
 				LogUtil.error("进货单查询", e1);
 			}
 			paraMap.put("sDate", sDate);
 			paraMap.put("eDate", eDate);
+			paraMap.put("gid", gid);
 			paraMap.put("buyOrderNum", buyOrderNumField.getText());
 			List list = searchInfo(paraMap);
 			updateTable(list, dftm);

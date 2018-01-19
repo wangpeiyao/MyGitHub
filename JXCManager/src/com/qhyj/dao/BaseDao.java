@@ -86,8 +86,8 @@ public abstract class BaseDao {
 		return id;
 	}
 	public static void main(String[] args) {
-		String str=": 列名 Cname 无效。";
-		System.out.println(str.indexOf("列名%无效"));
+		BuyOrderDao dao = new BuyOrderDao();
+		System.out.println(dao.getMainTypeTableMaxId(new Date(),"T_BUY_ORDER","SH","buynum"));
 		
 	}
 	public List getListByMap(String sql,Map map,BaseDo baseDo) {

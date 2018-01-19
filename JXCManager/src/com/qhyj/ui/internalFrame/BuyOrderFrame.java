@@ -53,7 +53,7 @@ public class BuyOrderFrame extends JInternalFrame {
 	private final JTextArea memo = new JTextArea(2,10); // 品种数量
 	private final JTextField hpzs = new JTextField("0"); // 货品总数
 	private final JTextField hjje = new JTextField("0"); // 合计金额
-	private final JTextField czy = new JTextField(user.getName());// 操作员
+//	private final JTextField czy = new JTextField(user.getName());// 操作员
 	private Date jhsjDate;
 	private JComboBox sp;
 	private JPopupMenu popMenu;

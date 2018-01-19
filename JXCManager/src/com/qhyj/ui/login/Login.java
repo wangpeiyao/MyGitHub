@@ -8,6 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
@@ -16,6 +17,7 @@ import javax.swing.WindowConstants;
 import com.qhyj.Const;
 import com.qhyj.controller.MainController;
 import com.qhyj.domain.UserDo;
+import com.qhyj.ui.internalFrame.SellOrderFrame;
 
 public class Login extends JFrame {
 	private JLabel userLabel;
@@ -58,10 +60,14 @@ public class Login extends JFrame {
 		login.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 //				user = Dao.getUser(userName.getText(), userPassword.getText());
-				user = MainController.getInstance().getUser(userName.getText(), userPassword.getText());
-				if (user.getUsername() == null || user.getName() == null) {
+				try {
+					user = MainController.getInstance().getUser(userName.getText(), userPassword.getText());
+				}catch (Exception e1) {
+				}
+				if (null==user||user.getUname() == null ) {
 					userName.setText(null);
 					userPassword.setText(null);
+					JOptionPane.showMessageDialog(Login.this, "”√ªß√˚√‹¬Î¥ÌŒÛ£°");
 					return;
 				}
 				setVisible(false);

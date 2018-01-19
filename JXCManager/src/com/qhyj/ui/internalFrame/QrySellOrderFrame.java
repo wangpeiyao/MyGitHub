@@ -28,6 +28,7 @@ import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.GoodsDo;
 import com.qhyj.domain.SellOrderDo;
 import com.qhyj.model.CustomItem;
+import com.qhyj.model.GoodsItem;
 import com.qhyj.ui.panel.GoodsModPanel;
 import com.qhyj.util.DateUtil;
 import com.qhyj.util.LogUtil;
@@ -37,6 +38,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 	private JTextField eDateField;
 	private JTextField sellOrderNumField;
 	private JComboBox customBox; // 客户
+	private JComboBox goodBox;
 	public QrySellOrderFrame() {
 		super();
 		setIconifiable(true);
@@ -44,7 +46,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 		setTitle("销售单查询");
 		getContentPane().setLayout(new GridBagLayout());
 //		setBounds(10, 10, 900, 600);
-		setSize(new Dimension(900, 550));
+		setSize(new Dimension(950, 550));
 		
 		table = new JTable();
 		initTableModel(table);
@@ -59,7 +61,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 		gridBagConstraints_6.anchor = GridBagConstraints.NORTH;
 		gridBagConstraints_6.insets = new Insets(0, 10, 0, 10);
 		gridBagConstraints_6.fill = GridBagConstraints.BOTH;
-		gridBagConstraints_6.gridwidth = 11;
+		gridBagConstraints_6.gridwidth = 12;
 		gridBagConstraints_6.gridheight = 1;
 		gridBagConstraints_6.gridy = 7;
 		gridBagConstraints_6.gridx = 0;
@@ -68,25 +70,39 @@ public class QrySellOrderFrame extends JInternalFrame {
 
 		setupComponet(new JLabel(" 销售日期："), 0, 0, 1, 1, false);
 		sDateField = new JTextField(DateUtil.getToDayStr());
-		setupComponet(sDateField, 1, 0, 1, 30, true);
+		setupComponet(sDateField, 1, 0, 1, 80, true);
 		setupComponet(new JLabel(" 至 "), 2, 0, 1, 1, false);
 		eDateField = new JTextField(DateUtil.getToDayStr());
-		setupComponet(eDateField,3 , 0, 1, 30, false);
+		setupComponet(eDateField,3 , 0, 1, 80, false);
 		
-		setupComponet(new JLabel(" 销售单号："), 4, 0, 1, 1, false);
-		sellOrderNumField = new JTextField();
-		setupComponet(sellOrderNumField,5 , 0, 1, 120, false);
 		
-		setupComponet(new JLabel(" 客户："), 6, 0, 1, 1, false);
+		
+		setupComponet(new JLabel(" 客户："), 4, 0, 1, 1, false);
 		customBox = new JComboBox(); // 客户
-		initCustomBox();
+	
 		customBox.setPreferredSize(new Dimension(120, 21));
-		setupComponet(customBox,7 , 0, 1, 30, false);
+		customBox.setMaximumSize(new Dimension(120,21));
+		customBox.setMinimumSize(new Dimension(120,21));
+		initCustomBox();
+		setupComponet(customBox,5, 0, 1, 1, false);
+		
+		setupComponet(new JLabel(" 商品："), 6, 0, 1, 1, false);
+		goodBox = new JComboBox(); // 客户
+		initGoodBox();
+		goodBox.setPreferredSize(new Dimension(120, 21));
+		goodBox.setMaximumSize(new Dimension(120,21));
+		goodBox.setMinimumSize(new Dimension(120,21));
+		setupComponet(goodBox,7, 0, 1, 1, false);
+		
+		setupComponet(new JLabel(" 销售单号："), 8, 0, 1, 1, false);
+		sellOrderNumField = new JTextField();
+		setupComponet(sellOrderNumField,9 , 0, 1, 120, false);
+
 
 
 		final JButton queryButton = new JButton();
 		queryButton.addActionListener(new QueryAction((DefaultTableModel) table.getModel()));
-		setupComponet(queryButton, 8, 0, 1, 1, false);
+		setupComponet(queryButton, 10, 0, 1, 1, false);
 		queryButton.setText("查询");
 
 //		final JButton showAllButton = new JButton("显示全部数据");
@@ -99,11 +115,11 @@ public class QrySellOrderFrame extends JInternalFrame {
 //		});
 //		setupComponet(showAllButton, 9, 0, 1, 1, false);
 		
-		final JButton exportButton = new JButton("导出数据");
+		final JButton exportButton = new JButton("导出");
 		exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				String[] keys = new String[]{"序号","销售单号","客户", "数量", "单价","金额","备注","创建时间","最后更新时间"};
-				String[] files = new String[] {"id","sumnum","cname","count","amount","sumamount","memo","createtime","lastupdatetime"};
+				String[] keys = new String[]{"序号","销售单号","客户","商品", "数量", "单价","金额","备注","创建时间","最后更新时间"};
+				String[] files = new String[] {"id","sumnum","cname","gname","count","amount","sumamount","memo","createtime","lastupdatetime"};
 				DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 				int rowCount = tableModel.getRowCount();
 				List<Map<String,Object>> dataList = new ArrayList<Map<String,Object>>();
@@ -118,7 +134,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 			}
 		});
 		
-		setupComponet(exportButton, 10, 0, 1, 1, false);
+		setupComponet(exportButton, 11, 0, 1, 1, false);
 //		pack();
 	}
 	private void initCustomBox() {// 初始化客户字段
@@ -138,22 +154,40 @@ public class QrySellOrderFrame extends JInternalFrame {
 			customBox.addItem(item);
 		}
 	}
+	private void initGoodBox() {// 初始化商品字段
+		List list = MainController.getInstance().getAllGoodsList();
+		GoodsItem allitem = new GoodsItem();
+		allitem.setId(0);
+		allitem.setName("全部");
+		goodBox.addItem(allitem);
+		if(null==list) {
+			return ;
+		}
+		for (int i=0;i<list.size();i++) {                                                                                                                                                               
+			GoodsDo goodsDo=(GoodsDo) list.get(i); 
+			GoodsItem item = new GoodsItem();
+			item.setId(goodsDo.getGid());
+			item.setName(goodsDo.getGname());
+			goodBox.addItem(item);
+		}
+	}
 	private void initTableModel(JTable table) {
 		table.setEnabled(false);
 		table.setSize(new Dimension(850, 400));
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-		String[] tableHeads = new String[]{"序号","销售单号","客户", "数量", "单价","金额","备注","创建时间","最后更新时间"};
+		String[] tableHeads = new String[]{"序号","销售单号","客户","商品","数量", "单价","金额","备注","创建时间","最后更新时间"};
 		((DefaultTableModel) table.getModel()).setColumnIdentifiers(tableHeads);
 		//设置列宽
 		table.getColumnModel().getColumn(0).setPreferredWidth(10);
-		table.getColumnModel().getColumn(1).setPreferredWidth(80);
+		table.getColumnModel().getColumn(1).setPreferredWidth(50);
 		table.getColumnModel().getColumn(2).setPreferredWidth(50);
-		table.getColumnModel().getColumn(3).setPreferredWidth(30);
-		table.getColumnModel().getColumn(4).setPreferredWidth(20);
-		table.getColumnModel().getColumn(5).setPreferredWidth(40);
-		table.getColumnModel().getColumn(6).setPreferredWidth(150);
-		table.getColumnModel().getColumn(7).setPreferredWidth(100);
+		table.getColumnModel().getColumn(3).setPreferredWidth(50);
+		table.getColumnModel().getColumn(4).setPreferredWidth(30);
+		table.getColumnModel().getColumn(5).setPreferredWidth(20);
+		table.getColumnModel().getColumn(6).setPreferredWidth(40);
+		table.getColumnModel().getColumn(7).setPreferredWidth(150);
 		table.getColumnModel().getColumn(8).setPreferredWidth(100);
+		table.getColumnModel().getColumn(9).setPreferredWidth(100);
 	}
 	
 	private void updateTable(List list,final DefaultTableModel dftm) {
@@ -169,6 +203,8 @@ public class QrySellOrderFrame extends JInternalFrame {
 			rowData.add(sellOrderDo.getSellNum());
 			CustomDo customDo = MainController.getInstance().getCustomById(sellOrderDo.getCid());
 			rowData.add(customDo.getCname());
+			GoodsDo goodsDo = MainController.getInstance().getGoodsById(sellOrderDo.getGid());
+			rowData.add(goodsDo.getGname());
 			rowData.add(sellOrderDo.getCount());
 			rowData.add(sellOrderDo.getAmount());
             rowData.add(sellOrderDo.getSumAmount());
@@ -204,12 +240,15 @@ public class QrySellOrderFrame extends JInternalFrame {
 			Date sDate = null;
 			Date eDate = null;
 			Integer kehuid =null;
+			Integer gid =null;
 			String sellOrderNum= null;
 			try {
-				sDate = DateUtil.fmtStrToDate(sDateField.getText(),"YYYY-mm-dd");
-				eDate = DateUtil.fmtStrToDate(eDateField.getText(),"YYYY-mm-dd");
+				sDate = DateUtil.fmtStrToDate(sDateField.getText(),"yyyy-MM-dd");
+				eDate = DateUtil.fmtStrToDate(eDateField.getText(),"yyyy-MM-dd");
 				kehuid = ((CustomItem)customBox.getSelectedItem()).getId();
+				gid = ((GoodsItem)goodBox.getSelectedItem()).getId();
 				sellOrderNum = sellOrderNumField.getText();
+				
 			}catch (Exception e1) {
 				e1.getMessage();
 				LogUtil.error("销售单查询", e1);
@@ -218,6 +257,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 			paraMap.put("eDate", eDate);
 			paraMap.put("cid", kehuid);
 			paraMap.put("sellOrderNum", sellOrderNumField.getText());
+			paraMap.put("gid", gid);
 			List list = searchInfo(paraMap);
 			updateTable(list, dftm);
 		}

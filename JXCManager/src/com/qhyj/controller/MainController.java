@@ -114,10 +114,25 @@ public class MainController {
 		list.forEach(obj-> System.out.println(obj.getCid()));
 	}
 	
+	public List<UserDo> getAllUserList(){
+		return userDao.getAllUserList();
+	}
+	public void addUser(UserDo userDo) {
+		userDao.addUser(userDo);
+	}
 	public UserDo getUser(String userName,String passWord) {
 		return userDao.getUser(userName, passWord);
 	}
+	public UserDo getUserByName(String userName) {
+		return userDao.getUserByName(userName);
+	}
 	
+	public void updateUser(UserDo userDo) {
+		userDao.updateUser(userDo);
+	}
+	public void delUserByUname(String uname) {
+		userDao.deleteUserByUname(uname);
+	}
 	public CustomDo getCustomById(int cid) {
 		return customDao.getCustom(cid);
 	}
@@ -176,7 +191,7 @@ public class MainController {
 	public List<SellOrderDo> getSellOrderListByMap(Map map){
 		return sellOrderDao.getSellOrderListByMap(map);
 	}
-	public List<SellOrderDo> getBuyOrderListByMap(Map map){
+	public List<BuyOrderDo> getBuyOrderListByMap(Map map){
 		return buyOrderDao.getBuyOrderListByMap(map);
 	}
 	public String getBuyMainMaxId(Date date) {

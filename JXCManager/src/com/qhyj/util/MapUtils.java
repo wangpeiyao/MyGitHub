@@ -12,10 +12,9 @@ public class MapUtils {
 			return false;
 		}
 		if(null!=map.get(key)) {
-			String value = getStringValByKey(map, key);
-		
-			if(null==value
-					||(null!=value&&"null".toLowerCase().equals(value.toLowerCase()))) {
+			Object obj = map.get(key);
+			
+			if(null!=obj&& obj instanceof String&&"".equals(((String)obj).trim())) {
 				return false;
 			}
 			return true;

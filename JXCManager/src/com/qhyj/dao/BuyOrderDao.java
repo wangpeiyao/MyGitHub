@@ -24,7 +24,7 @@ public class BuyOrderDao extends BaseDao{
 	public String getMaxBuyNum(Date orderDate) {
 		return getMainTypeTableMaxId(orderDate, "T_Buy_ORDER", "JH", "BuyNUM");
 	}
-	public List<SellOrderDo> getBuyOrderListByMap(Map map){
+	public List<BuyOrderDo> getBuyOrderListByMap(Map map){
 		StringBuffer sb = new StringBuffer("SELECT * FROM T_Buy_ORDER WHERE 1=1 ");
 		if(MapUtils.existObj(map, "sDate")){
 			sb.append(" AND orderDate >='").append(DateUtil.fmtDateToYMD((Date) map.get("sDate"))).append("'");
@@ -34,6 +34,9 @@ public class BuyOrderDao extends BaseDao{
 		}
 		if(MapUtils.existObj(map, "buyOrderNum")){
 			sb.append(" AND  buyOrderNum='").append(MapUtils.getStringValByKey(map, "buyOrderNum")).append("'");
+		}
+		if(MapUtils.existObj(map, "gid")&&0!=MapUtils.getIntegerValByKey(map, "gid")){
+			sb.append(" AND  gid=").append(MapUtils.getIntegerValByKey(map, "gid"));
 		}
 		return findListBySql(new BuyOrderDo(),sb.toString());
 	}

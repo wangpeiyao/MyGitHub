@@ -109,7 +109,7 @@ public class LoginFrame {
 		sysManagePanel.setBackground(new Color(223, 222, 224));
 		sysManagePanel.setLayout(new BoxLayout(sysManagePanel, BoxLayout.X_AXIS));
 		sysManagePanel.add(createFrameButton("操作员管理", "AddUserFrame"));
-		sysManagePanel.add(createFrameButton("更改密码", "GengGaiMiMa"));
+		sysManagePanel.add(createFrameButton("更改密码", "ModUserPassFrame"));
 //		sysManagePanel.add(createFrameButton("权限管理", "QuanManager"));
 
 		tabbedPane.addTab("   基础信息管理   ", null, baseManagePanel, "基础信息管理");

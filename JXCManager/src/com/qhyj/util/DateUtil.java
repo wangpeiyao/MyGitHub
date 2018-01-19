@@ -417,7 +417,7 @@ public class DateUtil
     return fmtDateToStr(date, "yyyyMM");
   }
   public static String fmtDateToYyyyMMDD(Date date) {
-	    return fmtDateToStr(date, "yyyyMM");
+	    return fmtDateToStr(date, "yyyyMMdd");
 	  }
 
   public static List getIntervalDates(Date sdate, Date edate)
