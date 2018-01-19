@@ -1,0 +1,12 @@
+com\wpy\base\common\HttpConstants.class
+com\wpy\base\service\BaseService.class
+com\wpy\base\util\QRCodeUtil.class
+com\wpy\base\util\HttpUtil.class
+com\wpy\base\json\JsonDateValueProcessor.class
+com\wpy\base\service\impl\UserServiceImpl.class
+com\wpy\base\controller\BaseController.class
+com\wpy\base\service\impl\BaseServiceImpl.class
+com\wpy\base\controller\LoginContorller.class
+com\wpy\base\dao\UserDao.class
+com\wpy\base\domain\User.class
+com\wpy\base\service\UserService.class

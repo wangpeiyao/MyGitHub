@@ -35,7 +35,7 @@ public class QryBuyOrderFrame extends JInternalFrame {
 	private JTextField sDateField;
 	private JTextField eDateField;
 	private JTextField buyOrderNumField;
-	private JComboBox goodBox;
+	private GoodsTextField goodBox;
 	public QryBuyOrderFrame() {
 		super();
 		setIconifiable(true);
@@ -73,7 +73,7 @@ public class QryBuyOrderFrame extends JInternalFrame {
 		setupComponet(eDateField,3 , 0, 1, 30, false);
 		
 		setupComponet(new JLabel(" 商品："), 4, 0, 1, 1, false);
-		goodBox = new JComboBox(); // 客户
+		goodBox = new GoodsTextField(); // 客户
 		initGoodBox();
 		goodBox.setPreferredSize(new Dimension(120, 21));
 		goodBox.setMaximumSize(new Dimension(120,21));
@@ -132,10 +132,10 @@ public class QryBuyOrderFrame extends JInternalFrame {
 	}
 	private void initGoodBox() {// 初始化商品字段
 		List list = MainController.getInstance().getAllGoodsList();
-		GoodsItem allitem = new GoodsItem();
-		allitem.setId(0);
-		allitem.setName("全部");
-		goodBox.addItem(allitem);
+//		GoodsItem allitem = new GoodsItem();
+//		allitem.setId(0);
+//		allitem.setName("全部");
+//		goodBox.addItem(allitem);
 		if(null==list) {
 			return ;
 		}
@@ -144,7 +144,8 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			GoodsItem item = new GoodsItem();
 			item.setId(goodsDo.getGid());
 			item.setName(goodsDo.getGname());
-			goodBox.addItem(item);
+			goodBox.addBoxItem(item);
+			goodBox.putUniversityMap(goodsDo.getGid(), item);
 		}
 	}
 	private void updateTable(List list,final DefaultTableModel dftm) {
@@ -197,10 +198,10 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			String sellOrderNum= null;
 			Integer gid = null;
 			try {
-				sDate = DateUtil.fmtStrToDate(eDateField.getText(),"yyyy-MM-dd");
+				sDate = DateUtil.fmtStrToDate(sDateField.getText(),"yyyy-MM-dd");
 				eDate = DateUtil.fmtStrToDate(eDateField.getText(),"yyyy-MM-dd");
 				sellOrderNum = buyOrderNumField.getText();
-				gid = ((GoodsItem)goodBox.getSelectedItem()).getId();
+				gid = goodBox.getKey();
 			}catch (Exception e1) {
 				e1.getMessage();
 				LogUtil.error("进货单查询", e1);
@@ -208,7 +209,7 @@ public class QryBuyOrderFrame extends JInternalFrame {
 			paraMap.put("sDate", sDate);
 			paraMap.put("eDate", eDate);
 			paraMap.put("gid", gid);
-			paraMap.put("buyOrderNum", buyOrderNumField.getText());
+			paraMap.put("buyNum", buyOrderNumField.getText());
 			List list = searchInfo(paraMap);
 			updateTable(list, dftm);
 		}

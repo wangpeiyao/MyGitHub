@@ -12,10 +12,7 @@ public class GoodsDo extends BaseDo{
 	private Date createTime;
 	private Date lastUpdateTime;
 	private String memo;
-	
-	
-	
-	
+	private  Double amount;
 	
 
 	public Integer getGid() {
@@ -82,11 +79,21 @@ public class GoodsDo extends BaseDo{
 	public void setMemo(String memo) {
 		this.memo = memo;
 	}
+	
+	
+
+	public Double getAmount() {
+		return amount;
+	}
+
+	public void setAmount(Double amount) {
+		this.amount = amount;
+	}
 
 	@Override
 	public String getInsertSql() {
-		return "INSERT INTO T_GOODS(GNAME,SPEC,PLACE,ISREBATE,CREATETIME,LASTUPDATETIME,MEMO) VALUES('"+this.gname+"','"+this.spec+"','"+
-	          this.place+"',"+this.isRebate+",GETDATE(),GETDATE(),'"+this.memo+"')";
+		return "INSERT INTO T_GOODS(GNAME,SPEC,PLACE,ISREBATE,CREATETIME,LASTUPDATETIME,MEMO,AMOUNT) VALUES('"+this.gname+"','"+this.spec+"','"+
+	          this.place+"',"+this.isRebate+",GETDATE(),GETDATE(),'"+this.memo+"',"+this.amount+")";
 	}
 
 

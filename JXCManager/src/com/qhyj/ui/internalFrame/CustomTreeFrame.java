@@ -5,6 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyVetoException;
+import java.beans.VetoableChangeListener;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.logging.Level;
@@ -21,6 +26,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -76,7 +82,7 @@ public class CustomTreeFrame extends JInternalFrame {
     //设置当前窗口的信息  
     private void init() {  
 //        getContentPane().setLayout(null);  
-        setTitle("单位信息维护");  
+        setTitle("客户信息维护");  
     }  
   
     //初始化景点分类树  
@@ -99,7 +105,10 @@ public class CustomTreeFrame extends JInternalFrame {
         JMenuItem addItem = new JMenuItem("添加下级客户");  
         addItem.addActionListener(new TreeAddViewMenuEvent(this));  
         JMenuItem delItem = new JMenuItem("删除客户及下级客户");  
-        delItem.addActionListener(new TreeDeleteViewMenuEvent(this));  
+        delItem.addActionListener(new TreeDeleteViewMenuEvent(this)); 
+        
+        JMenuItem findPathItem = new JMenuItem("搜索");  
+        findPathItem.addActionListener(new FindNodeEvent(this));
         JMenuItem modifyItem = new JMenuItem("修改客户信息");  
         modifyItem.addActionListener(new TreeModifyViewMenuEvent(this));  
         JMenuItem expandItem = new JMenuItem("展开全部");  
@@ -107,12 +116,13 @@ public class CustomTreeFrame extends JInternalFrame {
         JMenuItem collapsePathItem = new JMenuItem("合并全部");  
         collapsePathItem.addActionListener(new CollapseEvent(this));
         popMenu.add(addItem);  
-        popMenu.add(delItem);  
+        popMenu.add(findPathItem);  
         popMenu.add(modifyItem);  
         popMenu.add(expandItem);
         popMenu.add(collapsePathItem);
     }  
   
+    
     /** 
      * 完全展开一个JTree 
      * 
@@ -160,27 +170,42 @@ public class CustomTreeFrame extends JInternalFrame {
      */  
     class TreeAddViewMenuEvent implements ActionListener {  
   
-        private CustomTreeFrame adaptee;  
+        public CustomTreeFrame adaptee;  
   
         public TreeAddViewMenuEvent(CustomTreeFrame adaptee) {  
             this.adaptee = adaptee;  
         }  
   
         public void actionPerformed(ActionEvent e) {  
-            String name = JOptionPane.showInputDialog("请输入客户名称："); 
-            if(null==name||name.trim().length()<1) {
-            	JOptionPane.showMessageDialog(CustomTreeFrame.this, "客户名称不能为空");
-            	return ;
-            }
-			CustomDo customDo = new CustomDo();
-			customDo.setCname(name);
-			Integer parentId = ((CustomNode)this.adaptee.getTree().getLastSelectedPathComponent()).getKey();
-			customDo.setParentId(parentId);
-			MainController.getInstance().addCustome(customDo);
-			CustomNode treenode = new CustomNode(customDo.getCid(), customDo.getCname());
-			((CustomNode) this.adaptee.getTree().getLastSelectedPathComponent()).add(treenode);
-			this.adaptee.getTree().expandPath(new TreePath(((CustomNode) this.adaptee.getTree().getLastSelectedPathComponent()).getPath()));
-			this.adaptee.getTree().updateUI();
+//            String name = JOptionPane.showInputDialog("请输入客户名称："); 
+//            if(null==name||name.trim().length()<1) {
+//            	JOptionPane.showMessageDialog(CustomTreeFrame.this, "客户名称不能为空");
+//            	return ;
+//            }
+        	Integer parentId = ((CustomNode)this.adaptee.getTree().getLastSelectedPathComponent()).getKey();
+        	CustomFrame customFrame = new CustomFrame(parentId,null);
+        	adaptee.getDesktopPane().add(customFrame);
+        	try {
+        		customFrame.setVisible(true);
+				customFrame.setSelected(true);
+				customFrame.setResizable(false);
+			} catch (PropertyVetoException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+        	// 向侦听器列表添加一个 VetoableChangeListener。为所有属性注册该侦听器
+			customFrame.addVetoableChangeListener(new VetoableChangeListener() {
+				public void vetoableChange(PropertyChangeEvent e) throws PropertyVetoException {
+					CustomFrame frame = (CustomFrame) e.getSource();
+					CustomNode treenode = frame.getNode();
+					if (null != treenode) {
+						((CustomNode) adaptee.getTree().getLastSelectedPathComponent()).add(treenode);
+						adaptee.getTree().expandPath(new TreePath(
+								((CustomNode) adaptee.getTree().getLastSelectedPathComponent()).getPath()));
+						adaptee.getTree().updateUI();
+					}
+				}
+			});
         }  
     }  
   
@@ -196,10 +221,17 @@ public class CustomTreeFrame extends JInternalFrame {
         }  
   
         public void actionPerformed(ActionEvent e) {  
-            int conform = JOptionPane.showConfirmDialog(null, "是否确认删除该客户及下级？", "删除客户确认", JOptionPane.YES_NO_OPTION);  
+            int conform = JOptionPane.showConfirmDialog(null, "是否确认删除该客户及下级单位所有进货单和销售单？", "删除客户确认", JOptionPane.YES_NO_OPTION);  
             if (conform == JOptionPane.YES_OPTION) {  
             	CustomNode currNode = ((CustomNode) this.adaptee.getTree().getLastSelectedPathComponent());
-            	MainController.getInstance().deleteCustomeById(currNode.getKey());
+//            	MainController.getInstance().deleteCustomeById(currNode.getKey());
+            	
+            	try {
+ 				   MainController.getInstance().selfTransaction("deleteCustomeById", currNode.getKey());
+ 				}catch (Exception e1) {
+ 					JOptionPane.showMessageDialog(CustomTreeFrame.this, e1.getMessage());
+ 					return;
+ 				}
             	CustomNode parentNode = (CustomNode) (((CustomNode) this.adaptee.getTree().getLastSelectedPathComponent()).getParent());  
             	parentNode.remove(currNode);
 //                ((CustomNode) this.adaptee.getTree().getLastSelectedPathComponent()).removeFromParent();  
@@ -221,18 +253,30 @@ class TreeModifyViewMenuEvent implements ActionListener {
     }  
   
     public void actionPerformed(ActionEvent e) {  
-        String name = JOptionPane.showInputDialog("请输入新客户名称：");  
-        if(null==name||name.trim().length()<1) {
-        	JOptionPane.showMessageDialog(adaptee, "客户名称不能为空");
-        	return ;
-        }
-  
-        CustomNode node = (CustomNode) this.adaptee.getTree().getSelectionPath().getLastPathComponent();  
-        MainController.getInstance().updateCustomeName(node.getKey(),name);
-        //改名   
-        node.setUserObject(name);  
-        //刷新   
-        this.adaptee.getTree().updateUI();  
+    	Integer parentId = ((CustomNode)this.adaptee.getTree().getLastSelectedPathComponent()).getKey();
+    	CustomNode node = (CustomNode) this.adaptee.getTree().getSelectionPath().getLastPathComponent();  
+
+    	CustomFrame customFrame = new CustomFrame(parentId,node.getKey());
+    	adaptee.getDesktopPane().add(customFrame);
+    	try {
+    		customFrame.setVisible(true);
+			customFrame.setSelected(true);
+			customFrame.setResizable(false);
+		} catch (PropertyVetoException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+    	// 向侦听器列表添加一个 VetoableChangeListener。为所有属性注册该侦听器
+		customFrame.addVetoableChangeListener(new VetoableChangeListener() {
+			public void vetoableChange(PropertyChangeEvent e) throws PropertyVetoException {
+				CustomFrame frame = (CustomFrame) e.getSource();
+				CustomNode treenode = frame.getNode();
+				if (null != treenode) {
+					node.setUserObject(treenode.getUserObject());  
+					adaptee.getTree().updateUI();  
+				}
+			}
+		});
     }  
 }  
   
@@ -286,6 +330,56 @@ class CollapseEvent implements ActionListener {
     }
 }  
   
+
+class FindNodeEvent implements ActionListener {
+    private CustomTreeFrame adaptee;  
+    
+    public FindNodeEvent(CustomTreeFrame adaptee) {  
+        this.adaptee = adaptee;  
+    }  
+  
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		String str = JOptionPane.showInputDialog("请输入搜索内容：");
+		if(null==str||str.length()<1) {
+			JOptionPane.showMessageDialog(adaptee, "输入内容不能为空");
+		}
+		findInTree(str);
+	}
+	private void findInTree(String str) {
+		Object root = adaptee.getTree().getModel().getRoot();
+		TreePath treePath = new TreePath(root);
+		treePath = findInPath(treePath, str);
+		if (treePath != null) {
+			adaptee.getTree().setSelectionPath(treePath);
+			adaptee.getTree().scrollPathToVisible(treePath);
+		}
+	}
+	private TreePath findInPath(TreePath treePath, String str) {
+		Object object = treePath.getLastPathComponent();
+		if (object == null) {
+			return null;
+		}
+
+		String value = object.toString();
+		if (value.startsWith(str)) {
+			return treePath;
+		} else {
+			TreeModel model = adaptee.getTree().getModel();
+			int n = model.getChildCount(object);
+			for (int i = 0; i < n; i++) {
+				Object child = model.getChild(object, i);
+				TreePath path = treePath.pathByAddingChild(child);
+				path = findInPath(path, str);
+				if (path != null) {
+					return path;
+				}
+			}
+			return null;
+		}
+	}
+
+}
   
 /** 
  * 菜单点击右键的事件处理 

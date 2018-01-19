@@ -38,16 +38,21 @@ public class ExcelUtils {
 		outS.write(result.getDataBytes());
 	}
 	public static void main(String[] args) throws Exception {
+		
+		
 		List<Map<String, Object>> dataList = new ArrayList();
+		String[] fields = new String[300] ;
+		String[] keys = new String[300] ;
 		for (int i=0;i<100000;i++) {
 			Map<String, Object> map = new HashMap();
-			map.put("num", i);
-			map.put("name", "张三"+i);
-			map.put("count", 100+i);
+			for(int j = 0;j<300;j++) {
+				fields[j]="key"+i;
+				keys[j]="列"+i;
+				map.put("key"+i, i);
+			}
 			dataList.add(map);
 		}
-		String[] fields = new String[] {"num","name","count"};
-		String[] keys = new String[] {"序号","名称","数量"};
+	
 		String fileName = "MyTestExcel";
 		long sl = System.currentTimeMillis();
 		System.out.println(sl);

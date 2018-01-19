@@ -89,7 +89,12 @@ public class MainController {
 		}
 		return resObj;
 	}
-	
+	public void delSellOrderBySellNum(String sellNum) {
+		sellOrderDao.delSellOrderBySellNum(sellNum);
+	}
+	public void delBuyOrderByBuyNum(String buyNum) {
+		buyOrderDao.delBuyOrderByBuyNum(buyNum);
+	}
 	public void addRebateList(List<RebateDo> list) {
 		rebateDao.deleRebateDoByGid(list.get(0).getGid());
 		for (RebateDo rebateDo : list) {
@@ -103,15 +108,23 @@ public class MainController {
 		return rebateDao.getRebateByGid(gid);
 	}
 	public static void main(String[] args) {
-		Map<String,SellRebateModel> map = new HashMap();
-		map.put("1", new SellRebateModel(2));
-		map.put("2", new SellRebateModel(4));
-		map.put("3", new SellRebateModel(5));
-		map.put("6", new SellRebateModel(8));
-		map.put("5", new SellRebateModel(6));
-		List<SellRebateModel> list= (List<SellRebateModel>)map.entrySet().stream().map(et ->et.getValue()).collect(Collectors.toList());
-		list.sort(Comparator.comparingInt(SellRebateModel::getCid));
-		list.forEach(obj-> System.out.println(obj.getCid()));
+//		Map<String,SellRebateModel> map = new HashMap();
+//		map.put("1", new SellRebateModel(2));
+//		map.put("2", new SellRebateModel(4));
+//		map.put("3", new SellRebateModel(5));
+//		map.put("6", new SellRebateModel(8));
+//		map.put("5", new SellRebateModel(6));
+//		List<SellRebateModel> list= (List<SellRebateModel>)map.entrySet().stream().map(et ->et.getValue()).collect(Collectors.toList());
+//		list.sort(Comparator.comparingInt(SellRebateModel::getCid));
+//		list.forEach(obj-> System.out.println(obj.getCid()));
+		List list = new ArrayList();
+		list.add(1);
+		list.add(1);
+		list.add(1);
+		list.add(1);
+		
+		list.clear();
+		System.out.println(list.size());
 	}
 	
 	public List<UserDo> getAllUserList(){
@@ -123,6 +136,7 @@ public class MainController {
 	public UserDo getUser(String userName,String passWord) {
 		return userDao.getUser(userName, passWord);
 	}
+	
 	public UserDo getUserByName(String userName) {
 		return userDao.getUserByName(userName);
 	}
@@ -141,15 +155,34 @@ public class MainController {
 		return customDao.getCustomListByPrtId(parentId);
 	}
 	public void addCustome(CustomDo customDo) {
-		customDao.addCustom(customDo);
+		if(null!=customDo.getCid()&&customDo.getCid()>0) {
+			customDao.updateCustomName(customDo);
+		}else {
+			customDao.addCustom(customDo);
+		}
 	}
+	public List<CustomDo> getCustomListBirthday() {
+		return customDao.getCustomListBirthday();
+	}
+	public boolean checkCustomByName(String name) {
+		return customDao.checkCustomByName(name);
+	}
+	/**
+	 * @deprecated
+	 * @param cid
+	 */
 	public void deleteCustomeById(Integer cid){
-		//先校验是否有销售单
-		//TODO
+		//先删除销售单和进货单
+		sellOrderDao.delSellOrderByCid(cid);
+		buyOrderDao.delBuyOrderByCid(cid);
+		CustomDo customDo = customDao.getCustom(cid);
 		customDao.deleteCustom(cid);
 	}
 	public void updateCustomeName(Integer cid,String cname) {
-		customDao.updateCustomName(cid,cname);
+		CustomDo customDo = new CustomDo();
+		customDo.setCid(cid);
+		customDo.setCname(cname);
+		customDao.updateCustomName(customDo);
 	}
 	
 	public List getAllCustomList() {
@@ -188,8 +221,18 @@ public class MainController {
 	public String getSellMainMaxId(Date date) {
 		return sellOrderDao.getMaxSellNum(date);
 	}
+	public List<SellOrderDo> getSellOrderListBySellNum(String sellNum){
+		Map map = new HashMap();
+		map.put("sellOrderNum", sellNum);
+		return sellOrderDao.getSellOrderListByMap(map);
+	}
 	public List<SellOrderDo> getSellOrderListByMap(Map map){
 		return sellOrderDao.getSellOrderListByMap(map);
+	}
+	public List<BuyOrderDo> getBuyOrderListByBuyNum(String buyNum){
+		Map map = new HashMap();
+		map.put("buyNum", buyNum);
+		return buyOrderDao.getBuyOrderListByMap(map);
 	}
 	public List<BuyOrderDo> getBuyOrderListByMap(Map map){
 		return buyOrderDao.getBuyOrderListByMap(map);
@@ -202,17 +245,16 @@ public class MainController {
 		List<SellRebateModel> customList = null;
 		//取出每个客户每类产品买多少
 		if(new Integer(1).equals(MapUtils.getIntegerValByKey(map, "isInclude"))) {//包含下级
-			customList = sellOrderDao.getSellRebateList(map,false);
-			if(null==customList) {
+//			customList = sellOrderDao.getSellRebateList(map,false);
+			List<Integer> list = sellOrderDao.getCustomHavSellOrder(map);
+			if(null==list||list.size()<1) {
 				return null;
 			}
-			List<SellRebateModel> includeChildCustomList = new ArrayList();
-			for(int i=0;i<customList.size();i++) {
-				map.put("cid", customList.get(i).getCid());
-				includeChildCustomList.addAll(sellOrderDao.getSellRebateList(map,true));
+			customList = new ArrayList<SellRebateModel>();
+			for(int i=0;i<list.size();i++) {
+				map.put("cid", list.get(i));
+				customList.addAll(sellOrderDao.getSellRebateList(map,true));
 			}
-			customList.clear();
-			customList = includeChildCustomList;
 		}else {
 			customList = sellOrderDao.getSellRebateList(map,false);
 		}
@@ -222,7 +264,7 @@ public class MainController {
 		}
 		
 		//计算每个客户每类商品返利
-		Map<String,SellRebateModel> modelMap = new HashMap();
+		Map<String,SellRebateModel> modelMap = new HashMap<String,SellRebateModel>();
 		Map expMap = new HashMap();
 		for(SellRebateModel model:customList) {
 			String[] exps = null;
@@ -239,7 +281,7 @@ public class MainController {
 			//汇总每个客户所有的商品
 			CustomDo customDo = customDao.getCustom(cid);
 			model.setCname(customDo.getCname());
-			if(MapUtils.existObj(modelMap, String.valueOf(gid))) {
+			if(MapUtils.existObj(modelMap, String.valueOf(cid))) {
 				SellRebateModel model1 = (SellRebateModel) modelMap.get(String.valueOf(cid));
 				model1.addSumAmount(model.getSumAmount());
 				model1.addSumCount(model.getSumCount());
@@ -251,13 +293,13 @@ public class MainController {
 		List<SellRebateModel> sortList= (List<SellRebateModel>)modelMap.entrySet().stream().map(et->et.getValue()).collect(Collectors.toList());
 		
 		//根据单位排序
-		if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按数量排序
+		if (new Integer(2).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按数量排序
 			if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderFlag"))) {// 正序
 				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumCount).reversed());
 			} else {
 				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumCount));
 			}
-		} else if (new Integer(2).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按金额排序
+		} else if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderUnit"))) {// 按金额排序
 			if (new Integer(1).equals(MapUtils.getIntegerValByKey(map, "orderFlag"))) {// 正序
 				sortList.sort(Comparator.comparingDouble(SellRebateModel::getSumAmount).reversed());
 			} else {
@@ -302,7 +344,7 @@ public class MainController {
 		String sellNum = list.get(0).getSellNum();
 		Date orderDate =list.get(0).getOrderDate();
 		if(!sellNum.startsWith("XS"+DateUtil.fmtDateToYyyyMMDD(orderDate))
-				||sellNum.length()!=11) {
+				||sellNum.length()!=13) {
 			throw new RuntimeException("销售单与销售日期不匹配");
 		}
 		sellOrderDao.delSellOrderBySellNum(sellNum);
@@ -319,7 +361,7 @@ public class MainController {
 		String buyNum = list.get(0).getBuyNum();
 		Date orderDate =list.get(0).getOrderDate();
 		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))
-				||buyNum.length()!=11) {
+				||buyNum.length()!=13) {
 			throw new RuntimeException("销售单与销售日期不匹配");
 		}
 		buyOrderDao.delBuyOrderByBuyNum(buyNum);

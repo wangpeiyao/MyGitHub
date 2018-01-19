@@ -21,6 +21,7 @@ import com.qhyj.domain.GoodsDo;
 public class GoodsAddPanel extends JPanel {
 	private JComboBox gysQuanCheng;
 	private JTextField guiGe;
+	private JTextField  jiage;
 	private JTextField quanCheng;
 	private JTextField chanDi;
 	private JTextField jianCheng;
@@ -36,36 +37,41 @@ public class GoodsAddPanel extends JPanel {
 		quanCheng = new JTextField();
 		setupComponent(quanCheng, 1, 0, 3, 1, true);
 		
+		setupComponent(new JLabel("价格："), 0, 1, 1, 1, false);
+		jiage = new JTextField();
+		setupComponent(jiage, 1, 1, 3, 1, true);
+		
 	
 		
-		setupComponent(new JLabel("产地："), 0, 1, 1, 1, false);
+		setupComponent(new JLabel("产地："), 0, 2, 1, 1, false);
 		chanDi = new JTextField();
-		setupComponent(chanDi, 1, 1, 3, 300, true);
+		setupComponent(chanDi, 1, 2, 3, 300, true);
 		
 		
-		setupComponent(new JLabel("规格："), 0, 2, 1, 1, false);
+		setupComponent(new JLabel("规格："), 0, 3, 1, 1, false);
 		guiGe = new JTextField();
-		setupComponent(guiGe, 1, 2, 3, 1, true);
+		setupComponent(guiGe, 1, 3, 3, 1, true);
 		
-		setupComponent(new JLabel("是否返利："), 0, 3, 1, 1, false);
+		setupComponent(new JLabel("是否返利："), 0, 4, 1, 1, false);
 		jrb1 = new JRadioButton("是",true);
 		jrb2 = new JRadioButton("否");
 		group = new ButtonGroup();
 		group.add(jrb1);
         group.add(jrb2);
-		setupComponent(jrb1, 1, 3, 1, 10, false);
-		setupComponent(jrb2, 2, 3, 1, 10, false);
+		setupComponent(jrb1, 1, 4, 1, 10, false);
+		setupComponent(jrb2, 2, 4, 1, 10, false);
 		
-		setupComponent(new JLabel("备注："), 0, 4, 1, 1, false);
+		setupComponent(new JLabel("备注："), 0, 5, 1, 1, false);
 		beiZhu = new JTextField();
-		setupComponent(beiZhu, 1, 4, 3, 1, true);
+		setupComponent(beiZhu, 1, 5, 3, 1, true);
 		
 		final JButton tjButton = new JButton();
 		tjButton.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
 				if (chanDi.getText().equals("")
 						|| guiGe.getText().equals("")
-						|| quanCheng.getText().equals("")) {
+						|| quanCheng.getText().equals("")
+						|| jiage.getText().equals("")) {
 					JOptionPane.showMessageDialog(GoodsAddPanel.this,
 							"请完成未填写的信息。", "商品添加", JOptionPane.ERROR_MESSAGE);
 					return;
@@ -77,7 +83,7 @@ public class GoodsAddPanel extends JPanel {
 						System.out.println("error");
 						JOptionPane.showMessageDialog(
 								GoodsAddPanel.this, "商品信息添加失败，存在同名商品",
-								"客户添加信息", JOptionPane.INFORMATION_MESSAGE);
+								"商品添加", JOptionPane.INFORMATION_MESSAGE);
 						return;
 					}
 				} catch (Exception er) {
@@ -90,6 +96,13 @@ public class GoodsAddPanel extends JPanel {
 					goodsDo.setIsRebate(new Integer(1));
 				}else if(jrb2.isSelected()) {
 					goodsDo.setIsRebate(new Integer(0));
+				}
+				try {
+				goodsDo.setAmount(Double.valueOf(jiage.getText().trim()));
+				}catch (Exception e1) {
+					JOptionPane.showMessageDialog(
+							GoodsAddPanel.this, "金额格式有误","商品添加", JOptionPane.INFORMATION_MESSAGE);
+					return;
 				}
 				goodsDo.setPlace(chanDi.getText().trim());
 				goodsDo.setMemo(beiZhu.getText().trim());
@@ -115,6 +128,7 @@ public class GoodsAddPanel extends JPanel {
 				guiGe.setText("");
 				beiZhu.setText("");
 				quanCheng.setText("");
+				jiage.setText("");
 			}
 		});
 		resetButton.setText("重添");

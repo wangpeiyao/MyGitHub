@@ -13,6 +13,7 @@ import java.awt.event.ComponentEvent;
 import java.beans.PropertyVetoException;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.BoxLayout;
@@ -32,6 +33,8 @@ import javax.swing.event.InternalFrameAdapter;
 import javax.swing.event.InternalFrameEvent;
 
 import com.qhyj.Const;
+import com.qhyj.controller.MainController;
+import com.qhyj.domain.CustomDo;
 public class LoginFrame {
 	private JPanel sysManagePanel;
 	private JDesktopPane desktopPane;
@@ -63,7 +66,9 @@ public class LoginFrame {
 		frame.getContentPane().add(navigationPanel, BorderLayout.NORTH);
 		frame.setVisible(true);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+//		initNotiy();
 	}
+	
 
 	private JTabbedPane createNavigationPanel() { // 创建导航标签面板的方法
 		JTabbedPane tabbedPane = new JTabbedPane();
@@ -223,6 +228,30 @@ public class LoginFrame {
 			updateBackImage();
 		}
 	}
+	private void addJframe(JInternalFrame jf,String frameName) {
+		// 在内部窗体闭关时，从内部窗体容器ifs对象中清除该窗体。
+		jf.addInternalFrameListener(new InternalFrameAdapter() {
+			public void internalFrameClosed(InternalFrameEvent e) {
+				ifs.remove(frameName);
+			}
+		});
+
+		if (jf.getDesktopPane() == null) {
+			desktopPane.add(jf);
+			jf.setVisible(true);
+		}
+		if (frameName.startsWith("Qry")) {
+			Toolkit toolkit = Toolkit.getDefaultToolkit();
+			int x = (int) (toolkit.getScreenSize().getWidth() - jf.getWidth()) / 2;
+			int y = (int) (toolkit.getScreenSize().getHeight() - jf.getHeight() - navigationPanel.getHeight()) / 2;
+			jf.setLocation(x, y);
+		}
+		try {
+			jf.setSelected(true);
+		} catch (PropertyVetoException e1) {
+			e1.printStackTrace();
+		}
+	}
 	// 主窗体菜单项的单击事件监听器
 	protected class openFrameListener implements ActionListener {
 		private String frameName = null;
@@ -237,28 +266,7 @@ public class LoginFrame {
 		}
 		public void actionPerformed(final ActionEvent e) {
 			JInternalFrame jf = getIFrame(frameName);
-			// 在内部窗体闭关时，从内部窗体容器ifs对象中清除该窗体。
-			jf.addInternalFrameListener(new InternalFrameAdapter() {
-				public void internalFrameClosed(InternalFrameEvent e) {
-					ifs.remove(frameName);
-				}
-			});
-		
-			if (jf.getDesktopPane() == null) {
-				desktopPane.add(jf);
-				jf.setVisible(true);
-			}
-			if(frameName.startsWith("Qry")) {
-				Toolkit toolkit = Toolkit.getDefaultToolkit();
-				int x = (int)(toolkit.getScreenSize().getWidth()-jf.getWidth())/2;
-				int y = (int)(toolkit.getScreenSize().getHeight()-jf.getHeight()-navigationPanel.getHeight())/2;
-				jf.setLocation(x, y);
-			}
-			try {
-				jf.setSelected(true);
-			} catch (PropertyVetoException e1) {
-				e1.printStackTrace();
-			}
+			addJframe(jf,frameName);
 		}
 	}
 	

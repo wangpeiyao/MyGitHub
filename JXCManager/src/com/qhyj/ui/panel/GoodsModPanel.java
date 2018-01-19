@@ -31,6 +31,7 @@ public class GoodsModPanel extends JPanel {
 	private JTextField guiGe;
 	private JTextField danWei;
 	private JTextField chanDi;
+	private JTextField  jiage;
 	private JTextField jianCheng;
 	private JTextField quanCheng;
 	private JButton modifyButton;
@@ -46,32 +47,36 @@ public class GoodsModPanel extends JPanel {
 		quanCheng = new JTextField();
 		quanCheng.setEditable(false);
 		setupComponet(quanCheng, 1, 0, 3, 1, true);
-
-
-		setupComponet(new JLabel("产地："), 0, 1, 1, 1, false);
-		chanDi = new JTextField();
-		setupComponet(chanDi, 1, 1, 3, 300, true);
-
-
-		setupComponet(new JLabel("规格："), 0, 2, 1, 1, false);
-		guiGe = new JTextField();
-		setupComponet(guiGe, 1, 2, 3, 1, true);
 		
-		setupComponet(new JLabel("是否返利："), 0, 3, 1, 1, false);
+		setupComponet(new JLabel("价格："), 0, 1, 1, 1, false);
+		jiage = new JTextField();
+		setupComponet(jiage, 1, 1, 3, 300, true);
+
+
+		setupComponet(new JLabel("产地："), 0, 2, 1, 1, false);
+		chanDi = new JTextField();
+		setupComponet(chanDi, 1, 2, 3, 300, true);
+
+
+		setupComponet(new JLabel("规格："), 0, 3, 1, 1, false);
+		guiGe = new JTextField();
+		setupComponet(guiGe, 1, 3, 3, 1, true);
+		
+		setupComponet(new JLabel("是否返利："), 0, 4, 1, 1, false);
 		jrb1 = new JRadioButton("是");
 		jrb2 = new JRadioButton("否");
 		group = new ButtonGroup();
 		group.add(jrb1);
         group.add(jrb2);
-        setupComponet(jrb1, 1, 3, 1, 10, false);
-        setupComponet(jrb2, 2, 3, 1, 10, false);
+        setupComponet(jrb1, 1, 4, 1, 10, false);
+        setupComponet(jrb2, 2, 4, 1, 10, false);
 
 
-		setupComponet(new JLabel("备注："), 0, 4, 1, 1, false);
+		setupComponet(new JLabel("备注："), 0, 5, 1, 1, false);
 		beiZhu = new JTextField();
-		setupComponet(beiZhu, 1, 4, 3, 1, true);
+		setupComponet(beiZhu, 1, 5, 3, 1, true);
 
-		setupComponet(new JLabel("选择商品"), 0, 5, 1, 0, false);
+		setupComponet(new JLabel("选择商品"), 0, 6, 1, 0, false);
 		sp = new JComboBox();
 		sp.setPreferredSize(new Dimension(230, 21));
 		// 处理客户信息的下拉选择框的选择事件
@@ -81,14 +86,14 @@ public class GoodsModPanel extends JPanel {
 			}
 		});
 		// 定位商品信息的下拉选择框
-		setupComponet(sp, 1, 5, 2, 0, true);
+		setupComponet(sp, 1, 6, 2, 0, true);
 		modifyButton = new JButton("修改");
 		delButton = new JButton("删除");
 		JPanel panel = new JPanel();
 		panel.add(modifyButton);
 		panel.add(delButton);
 		// 定位按钮
-		setupComponet(panel, 3, 5, 1, 0, false);
+		setupComponet(panel, 3, 7, 1, 0, false);
 		// 处理删除按钮的单击事件
 		delButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -98,7 +103,13 @@ public class GoodsModPanel extends JPanel {
 				int confirm = JOptionPane.showConfirmDialog(
 						GoodsModPanel.this, "确认删除商品信息吗？");
 				if (confirm == JOptionPane.YES_OPTION) {
-					int rs = MainController.getInstance().deleteGoods(item.getId());
+					int rs=0;
+					try {
+						rs = MainController.getInstance().deleteGoods(item.getId());
+					}catch (Exception e1) {
+						JOptionPane.showMessageDialog(GoodsModPanel.this,
+								"已有订单不可删除");
+					}
 					if (rs > 0) {
 						JOptionPane.showMessageDialog(GoodsModPanel.this,
 								"商品：" + item.getName() + "。删除成功");
@@ -118,6 +129,18 @@ public class GoodsModPanel extends JPanel {
 				goodsDo.setSpec(guiGe.getText().trim());
 				goodsDo.setPlace(chanDi.getText().trim());
 				goodsDo.setMemo(beiZhu.getText().trim());
+				if(jrb1.isSelected()) {
+					goodsDo.setIsRebate(new Integer(1));
+				}else if(jrb2.isSelected()) {
+					goodsDo.setIsRebate(new Integer(0));
+				}
+				try {
+					goodsDo.setAmount(Double.valueOf(jiage.getText().trim()));
+				} catch (Exception e1) {
+					JOptionPane.showMessageDialog(GoodsModPanel.this, "金额格式有误", "商品添加",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
 				int res = MainController.getInstance().updateGoods(goodsDo);
 				
 				if (res == 1) {
@@ -191,6 +214,7 @@ public class GoodsModPanel extends JPanel {
 			chanDi.setText(goodsDo.getPlace().trim());
 			guiGe.setText(goodsDo.getSpec().trim());
 			beiZhu.setText(goodsDo.getMemo().trim());
+			jiage.setText(null==goodsDo.getAmount()?"":goodsDo.getAmount().toString());
 			if(new Integer(0).equals(goodsDo.getIsRebate())) {
 				jrb2.setSelected(true);
 			}else if(new Integer(1).equals(goodsDo.getIsRebate())) {

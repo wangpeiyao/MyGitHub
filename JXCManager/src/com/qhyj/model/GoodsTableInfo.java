@@ -6,6 +6,7 @@ public class GoodsTableInfo {
 	private String spec;
 	private String place;
 	private String memo;
+	private Double amount;
 	public String getGname() {
 		return gname;
 	}
@@ -39,6 +40,12 @@ public class GoodsTableInfo {
 	
 	public String toString() {
 		return this.gname;
+	}
+	public Double getAmount() {
+		return amount;
+	}
+	public void setAmount(Double amount) {
+		this.amount = amount;
 	}
 	
 	

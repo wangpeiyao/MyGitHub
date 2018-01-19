@@ -24,7 +24,7 @@ public class StockDao extends BaseDao{
 			if(1==flag) {
 				stockDo.setLavenum(currStock+stockDo.getLavenum());
 			}else if(2==flag) {
-				if(stockDo1.getLavenum()<stockDo.getLavenum()) {
+				if(currStock<stockDo.getLavenum()) {
 					throw new RuntimeException("¿â´æ²»¹»");
 				}
 				stockDo.setLavenum(currStock-stockDo.getLavenum());

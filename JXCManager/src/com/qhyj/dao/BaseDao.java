@@ -148,52 +148,58 @@ public abstract class BaseDao {
 			rs = stmt.executeQuery(sql);
 			
 			while (null!=rs&&rs.next()) {
-				Object newObj = obj.getClass().newInstance();
-				Field[] fields = obj.getClass().getDeclaredFields();
-				Object value = null;
-				Method m = null;
 				if(null==list) {
 					list = new ArrayList();
 				}
-				for(Field field :fields) {
-					String name = field.getName(); // 获取属性的名字
-		            name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
-				    String type = field.getGenericType().toString(); 
-				    try {
-					    if (type.equals("class java.lang.String")) { // 如果type是类类型，则前面包含"class "，后面跟类名
-					    	value = rs.getString(name);
-		                    if (value != null) {
-		                    	m = newObj.getClass().getMethod("set"+name,String.class);
-		                        m.invoke(newObj, value);
-		                    }
-		                }else if (type.equals("class java.lang.Integer")) {
-		                	value = rs.getInt(name);
-		                    if (value != null) {
-		                        m = newObj.getClass().getMethod("set"+name,Integer.class);
-		                        m.invoke(newObj, value);
-		                    }
-		                }else if (type.equals("class java.lang.Double")) {
-		                	value = rs.getDouble(name);
-		                    if (value != null) {
-		                        m = newObj.getClass().getMethod("set"+name,Double.class);
-		                        m.invoke(newObj, value);
-		                    }
-		                }else if (type.equals("class java.util.Date")) {
-		                	value = rs.getTimestamp(name);
-		                    if (value != null) {
-		                        m = newObj.getClass().getMethod("set"+name,Date.class);
-		                        m.invoke(newObj, value);
-		                    }
-		                }
-				    }catch(SQLServerException e) {
-				    	if(!((e.getMessage().indexOf("列名")>-1)
-				    			&&(e.getMessage().indexOf("无效")>-1))) {
-				    		throw e;
-				    	}
-				    }
+				if (obj instanceof String) {
+					list.add(rs.getString(1));
+				}else if(obj instanceof Integer) {
+					list.add(rs.getInt(1));
+				}else {
+					Object newObj = obj.getClass().newInstance();
+					Field[] fields = obj.getClass().getDeclaredFields();
+					Object value = null;
+					Method m = null;
+					
+					for(Field field :fields) {
+						String name = field.getName(); // 获取属性的名字
+			            name = name.substring(0, 1).toUpperCase() + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
+					    String type = field.getGenericType().toString(); 
+					    try {
+						    if (type.equals("class java.lang.String")) { // 如果type是类类型，则前面包含"class "，后面跟类名
+						    	value = rs.getString(name);
+			                    if (value != null) {
+			                    	m = newObj.getClass().getMethod("set"+name,String.class);
+			                        m.invoke(newObj, value);
+			                    }
+			                }else if (type.equals("class java.lang.Integer")) {
+			                	value = rs.getInt(name);
+			                    if (value != null) {
+			                        m = newObj.getClass().getMethod("set"+name,Integer.class);
+			                        m.invoke(newObj, value);
+			                    }
+			                }else if (type.equals("class java.lang.Double")) {
+			                	value = rs.getDouble(name);
+			                    if (value != null) {
+			                        m = newObj.getClass().getMethod("set"+name,Double.class);
+			                        m.invoke(newObj, value);
+			                    }
+			                }else if (type.equals("class java.util.Date")) {
+			                	value = rs.getTimestamp(name);
+			                    if (value != null) {
+			                        m = newObj.getClass().getMethod("set"+name,Date.class);
+			                        m.invoke(newObj, value);
+			                    }
+			                }
+					    }catch(SQLServerException e) {
+					    	if(!((e.getMessage().indexOf("列名")>-1)
+					    			&&(e.getMessage().indexOf("无效")>-1))) {
+					    		throw e;
+					    	}
+					    }
+					}
+					list.add(newObj);
 				}
-				list.add(newObj);
-				
 			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);

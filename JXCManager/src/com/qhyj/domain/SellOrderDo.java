@@ -18,6 +18,7 @@ public class SellOrderDo extends BaseDo{
 	private String memo;
 	private Date createTime;
 	private Date lastUpdateTime;
+	private Integer payState;
 	public Integer getSoid() {
 		return soid;
 	}
@@ -86,12 +87,19 @@ public class SellOrderDo extends BaseDo{
 	public void setSumAmount(Double sumAmount) {
 		this.sumAmount = sumAmount;
 	}
+	
+	public Integer getPayState() {
+		return payState;
+	}
+	public void setPayState(Integer payState) {
+		this.payState = payState;
+	}
 	@Override
 	public String getInsertSql() {
 		return "INSERT INTO T_SELL_ORDER(CID,GID,ORDERDATE,COUNT,SUMAMOUNT,AMOUNT,"
-				+ "MEMO,CREATETIME,LASTUPDATETIME,SELLNUM)VALUES("+this.cid
+				+ "MEMO,CREATETIME,LASTUPDATETIME,SELLNUM,PAYSTATE)VALUES("+this.cid
 				+","+this.gid+",'"+DateUtil.fmtDateToYMD(this.orderDate)+"',"+this.count+","+this.sumAmount
-				+","+this.amount+",'"+(this.memo==null?"":this.memo)+"',GETDATE(),GETDATE(),'"+this.sellNum+"')";
+				+","+this.amount+",'"+(this.memo==null?"":this.memo)+"',GETDATE(),GETDATE(),'"+this.sellNum+"',"+this.payState+")";
 	}
 	
 	

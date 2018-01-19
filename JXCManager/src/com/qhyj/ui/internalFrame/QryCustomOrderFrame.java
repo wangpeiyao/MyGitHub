@@ -37,7 +37,7 @@ public class QryCustomOrderFrame extends JInternalFrame {
 	private JComboBox orderBox;//排序 
 	private JComboBox childeBox;//是否包含下级
 	private JComboBox orderUnit;//排序单位
-	private JComboBox customBox; // 客户
+	private CustomTextField customBox; // 客户
 	private JTextField  showCount;//显示数目
 	private JTextField sDateField;
 	private JTextField eDateField;
@@ -75,7 +75,7 @@ public class QryCustomOrderFrame extends JInternalFrame {
 		setupComponet(eDateField,3 , 0, 1, 30, false);
 		
 		setupComponet(new JLabel(" 客户："), 4, 0, 1, 1, false);
-		customBox = new JComboBox(); // 客户
+		customBox = new CustomTextField(); // 客户
 		initCustomBox();
 		customBox.setPreferredSize(new Dimension(120, 21));
 		setupComponet(customBox,5, 0, 1, 30, false);
@@ -134,10 +134,10 @@ public class QryCustomOrderFrame extends JInternalFrame {
 	}
 	private void initCustomBox() {// 初始化客户字段
 		List list = MainController.getInstance().getAllCustomList();
-		CustomItem allitem = new CustomItem();
-		allitem.setId(0);
-		allitem.setName("全部");
-		customBox.addItem(allitem);
+//		CustomItem allitem = new CustomItem();
+//		allitem.setId(0);
+//		allitem.setName("全部");
+//		customBox.addItem(allitem);
 		if(null==list) {
 			return ;
 		}
@@ -146,7 +146,8 @@ public class QryCustomOrderFrame extends JInternalFrame {
 			CustomItem item = new CustomItem();
 			item.setId(customDo.getCid());
 			item.setName(customDo.getCname());
-			customBox.addItem(item);
+			customBox.addBoxItem(item);
+			customBox.putUniversityMap(customDo.getCid(), item);
 		}
 	}
 	// 设置组件位置并添加到容器中
@@ -218,7 +219,7 @@ public class QryCustomOrderFrame extends JInternalFrame {
 			paraMap.put("orderUnit", ((CommonBoxItem)orderUnit.getSelectedItem()).getKey());//排序单位
 			paraMap.put("orderFlag", ((CommonBoxItem)orderBox.getSelectedItem()).getKey());//排序顺序（正序倒序）
 			paraMap.put("showCount", showCount.getText());//显示数量
-			paraMap.put("cid",((CustomItem)customBox.getSelectedItem()).getId());//显示数量
+			paraMap.put("cid",customBox.getKey());//显示数量
 			List list = searchInfo(paraMap);
 			updateTable(list, dftm);
 		}

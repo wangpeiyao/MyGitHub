@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:aop="http://www.springframework.org/schema/aop"  
+    xmlns:tx="http://www.springframework.org/schema/tx"  
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xsi:schemaLocation="  
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd  
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd  
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">  
+
+    <bean id="myShiro" class="com.kj.filter.MyShiro" />
+
+    <!-- 配置权限管理器 -->  
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">    
+        <!-- 使用下面配置的缓存管理器 -->  
+        <property name="cacheManager" ref="cacheManager"/>   
+        <property name="sessionMode" value="native"/>
+        <!-- ref对应我们写的realm  MyShiro -->  
+        <property name="realm" ref="myShiro"/>    
+        <property name="sessionManager" ref="sessionManager"/>
+    </bean>  
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
+        <!-- Set a net.sf.ehcache.CacheManager instance here if you already have one.  If not, a new one
+             will be creaed with a default config:                -->
+       <!-- <property name="cacheManager" ref="cacheManagers"/>-->
+        <property name="cacheManagerConfigFile" value="classpath:ehcache-shiro.xml" />
+        <!-- If you don't have a pre-built net.sf.ehcache.CacheManager instance to inject, but you want
+             a specific Ehcache configuration to be used, specify that here.  If you don't, a default
+             will be used.:
+        <property name="cacheManagerConfigFile" value="classpath:some/path/to/ehcache.xml"/> -->
+    </bean>
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="sessionDAO" ref="sessionDAO"/>
+    </bean>
+    <bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
+        <property name="activeSessionsCacheName" value="shiro-activeSessionCache"/>
+    </bean>
+
+
+    <!-- Shiro生命周期处理器 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />  
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"
+          depends-on="lifecycleBeanPostProcessor"/>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <!-- 配置shiro的过滤器工厂类，id- shiroFilter要和我们在web.xml中配置的过滤器一致 -->  
+    <bean id="shiroFilter" class="com.kj.filter.MyShiroFilterFactoryBean">   
+        <!-- 调用我们配置的权限管理器 -->   
+        <property name="securityManager" ref="securityManager"/>   
+        <!-- 配置我们的登录请求地址 -->   
+        <property name="loginUrl" value="/login"/>    
+        <!-- 配置我们在登录页登录成功后的跳转地址，如果你访问的是非/login地址，则跳到您访问的地址 -->  
+        <property name="successUrl" value="/user/"/>    
+        <!-- 如果您请求的资源不再您的权限范围，则跳转到/403请求地址 -->  
+        <property name="unauthorizedUrl" value="/unauthorizedUrl"/>    
+        <!-- 权限配置 -->  
+        <property name="filterChainDefinitions">    
+            <value>    
+            <!--
+                anon:例子/admins/**=anon 没有参数，表示可以匿名使用。 
+                authc:例如/admins/user/**=authc表示需要认证(登录)才能使用，没有参数 
+                roles：例子/admins/user/**=roles[admin],参数可以写多个，多个时必须加上引号，并且参数之间用逗号分割，当有多个参数时，例如admins/user/**=roles["admin,guest"],每个参数通过才算通过，相当于hasAllRoles()方法。 
+                perms：例子/admins/user/**=perms[user:add:*],参数可以写多个，多个时必须加上引号，并且参数之间用逗号分割，例如/admins/user/**=perms["user:add:*,user:modify:*"]，当有多个参数时必须每个参数都通过才通过，想当于isPermitedAll()方法。 
+                rest：例子/admins/user/**=rest[user],根据请求的方法，相当于/admins/user/**=perms[user:method] ,其中method为post，get，delete等。 
+                port：例子/admins/user/**=port[8081],当请求的url的端口不是8081是跳转到schemal://serverName:8081?queryString,其中schmal是协议http或https等，serverName是你访问的host,8081是url配置里port的端口，queryString是你访问的url里的？后面的参数。 
+                authcBasic：例如/admins/user/**=authcBasic没有参数表示httpBasic认证 
+                ssl:例子/admins/user/**=ssl没有参数，表示安全的url请求，协议为https 
+                user:例如/admins/user/**=user没有参数表示必须存在用户，当登入操作时不做检查
+
+                <shiro:authenticated> 登录之后
+                <shiro:notAuthenticated> 不在登录状态时
+                <shiro:guest> 用户在没有RememberMe时
+                <shiro:user> 用户在RememberMe时
+                <shiro:hasAnyRoles name="abc,123" > 在有abc或者123角色时
+                <shiro:hasRole name="abc"> 拥有角色abc
+                <shiro:lacksRole name="abc"> 没有角色abc
+                <shiro:hasPermission name="abc"> 拥有权限abc
+                <shiro:lacksPermission name="abc"> 没有权限abc
+                <shiro:principal> 显示用户登录名
+                -->  
+
+                <!-- anon表示此地址不需要任何权限即可访问 -->  
+                /static/**=anon  
+                /logout=logout
+                <!-- perms["user:create,user:query"]当有多个参数时必须每个参数都通过才通过，想当于isPermitedAll()方法。 -->  
+               <!-- /user/create/query/=perms["user:create,user:query"] -->
+                <!-- roles[admin,manager]表示访问此连接需要用户同时拥有admin和manager两个角色 -->  
+                /user/add/**=roles[admin,manager]  
+                /user/del/**=perms[user:create]  
+                /user/edit/**=roles[admin]  
+                <!--所有的请求(除去配置的静态资源请求或请求地址为anon的请求)都要通过登录验证,如果未登录则跳到/login-->    
+                /** = authc  
+            </value>    
+        </property>    
+    </bean>  
+
+</beans>  

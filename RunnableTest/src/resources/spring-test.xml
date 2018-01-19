@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+	
+	
+	<bean id="ibs.SendRemoteJob" class="com.test.IBSAutoJob">
+		<property name="workThreadNum" value="10"/>
+	</bean>
+			
+<!--     <bean id="ibs.SendRemoteJobFactoryBean" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"> -->
+<!--  <bean id="ibs.SendRemoteJobFactoryBean" class="com.quartz.JobDetailBeanProxy"> -->
+  <bean id="ibs.SendRemoteJobFactoryBean" class="com.nstc.terraQuartz.scheduling.quartz.JobDetailBeanProxy">
+        <property name="targetObject" ref="ibs.SendRemoteJob"/>
+		<property name="targetMethod" value="execute"/>
+		<property name="concurrent" value="false"/>		
+    </bean>	
+    
+<!--     <bean id="ibs.SendRemoteJobTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean"> -->
+  <bean id="ibs.SendRemoteJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+<!--         <property name="jobDetail" ref="ibs.SendRemoteJobFactoryBean"/> -->
+<!-- 		<property name="startDelay" value="6000"/> -->
+<!-- 		<property name="repeatInterval" value="36000"/>		 -->
+       <property name="jobDetail" ref="ibs.SendRemoteJobFactoryBean"/> 
+       <property name="cronExpression">
+       	<value>0 * * * * ?</value>
+       </property>
+    </bean>
+
+    <bean id ="ibs.SchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <list>
+                 <ref bean="ibs.SendRemoteJobTrigger"/>
+                  <ref bean="ibs.SendRemoteJobTrigger"/>
+            </list>
+        </property>
+    </bean>
+</beans>

@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.math.BigDecimal;
@@ -17,7 +19,6 @@ import java.util.Vector;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
@@ -38,8 +39,10 @@ import com.qhyj.controller.MainController;
 import com.qhyj.domain.BuyOrderDo;
 import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.GoodsDo;
+import com.qhyj.domain.SellOrderDo;
 import com.qhyj.domain.UserDo;
-import com.qhyj.model.CustomItem;
+import com.qhyj.model.GoodsCellEditor;
+import com.qhyj.model.GoodsItem;
 import com.qhyj.model.GoodsTableInfo;
 import com.qhyj.ui.login.Login;
 import com.qhyj.util.DateUtil;
@@ -55,7 +58,7 @@ public class BuyOrderFrame extends JInternalFrame {
 	private final JTextField hjje = new JTextField("0"); // 合计金额
 //	private final JTextField czy = new JTextField(user.getName());// 操作员
 	private Date jhsjDate;
-	private JComboBox sp;
+	private GoodsTextField sp;
 	private JPopupMenu popMenu;
 	public BuyOrderFrame() {
 		super();
@@ -69,6 +72,15 @@ public class BuyOrderFrame extends JInternalFrame {
 		setupComponet(new JLabel("进货单号："), 0, 0, 1, 0, false);
 //		piaoHao.setFocusable(false);
 		setupComponet(piaoHao, 1, 0, 1, 140, true);
+		piaoHao.addFocusListener(new FocusListener() {
+			@Override
+			public void focusGained(FocusEvent e) {
+			}
+			@Override
+			public void focusLost(FocusEvent e) {
+				initBuyOrderInfo();
+			}
+		});
 
 
 
@@ -85,13 +97,21 @@ public class BuyOrderFrame extends JInternalFrame {
 		memo.setLineWrap(true);// 如果内容过长。
 		setupComponet(new JScrollPane(memo), 1, 1, 5, 1, true);
 
-
-		sp = new JComboBox();
-		sp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				GoodsTableInfo info = (GoodsTableInfo) sp.getSelectedItem();
-				// 如果选择有效就更新表格
-				if (info != null && info.getGid() != null) {
+//
+//		sp = new JComboBox();
+//		sp.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				GoodsTableInfo info = (GoodsTableInfo) sp.getSelectedItem();
+//				// 如果选择有效就更新表格
+//				if (info != null && info.getGid() != null) {
+//					updateTable();
+//				}
+//			}
+//		});
+		sp = new GoodsTextField();
+		sp.setAfterSetText(sp.new afterSetText() {
+			public void actionPerformed() {
+				if(null!=sp.getKey()){
 					updateTable();
 				}
 			}
@@ -135,9 +155,45 @@ public class BuyOrderFrame extends JInternalFrame {
 				}
 				DefaultTableModel model = (DefaultTableModel) table.getModel();
 				model.addRow(new Vector());
+				GoodsCellEditor cellEditor = (GoodsCellEditor) table.getCellEditor(model.getRowCount(), 1);
+				GoodsTextField goodsTextField = (GoodsTextField) cellEditor.getComponent();
+				GoodsItem item = new GoodsItem();
+                item.setId(null);
+                item.setName("");
+				goodsTextField.setItem(item);
 			}
 		});
-		setupComponet(tjButton, 4, 4, 1, 1, false);
+		setupComponet(tjButton, 3, 4, 1, 1, false);
+		
+		// 单击添加按钮在表格中添加新的一行
+		JButton delButton = new JButton("删除");
+		delButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// 结束表格中没有编写的单元
+				stopTableCellEditing();
+				if(!piaoHao.getText().isEmpty()) {
+					int op = JOptionPane.showConfirmDialog(BuyOrderFrame.this,
+							"确认要删除该销售单？");
+					if (op == JOptionPane.OK_OPTION) {
+						try {
+							   MainController.getInstance().delBuyOrderByBuyNum(piaoHao.getText().trim());
+							}catch (Exception e1) {
+								e1.printStackTrace();
+								JOptionPane.showMessageDialog(BuyOrderFrame.this, "删除失败");
+								return;
+							}
+							JOptionPane.showMessageDialog(BuyOrderFrame.this, "删除成功");
+							 clearFrome();
+					}
+					
+				}else {
+					JOptionPane.showMessageDialog(BuyOrderFrame.this, "请输入销售单号");
+				}
+				
+			}
+		});
+		setupComponet(delButton, 4, 4, 1, 1, false);
+		
 
 		// 单击销售按钮保存进货信息
 		JButton sellButton = new JButton("保存");
@@ -165,9 +221,9 @@ public class BuyOrderFrame extends JInternalFrame {
 				int rows = table.getRowCount();
 				List list = new ArrayList();
 				for (int i = 0; i < rows; i++) {
-					GoodsTableInfo soInfo = (GoodsTableInfo) table.getValueAt(i, 1);
+					GoodsItem soInfo = (GoodsItem) table.getValueAt(i, 1);
 					BuyOrderDo buyOrderDo = new BuyOrderDo();
-					buyOrderDo.setGid(soInfo.getGid());
+					buyOrderDo.setGid(soInfo.getId());
 					Object slObj = table.getValueAt(i, 2);//数量
 					Object djObj = table.getValueAt(i, 3);//单价
 					Object zjObj = table.getValueAt(i, 4);//总价
@@ -210,7 +266,7 @@ public class BuyOrderFrame extends JInternalFrame {
 		String[] columnNames = {"","商品名称", "数量","单价","总价","产地", "规格", "备注"};
 		((DefaultTableModel) table.getModel()).setColumnIdentifiers(columnNames);
 		
-		final DefaultCellEditor editor = new DefaultCellEditor(sp);
+		final GoodsCellEditor editor = new GoodsCellEditor(sp);
 		editor.setClickCountToStart(2);
 		
 		TableColumn column = table.getColumnModel().getColumn(1);
@@ -266,28 +322,80 @@ public class BuyOrderFrame extends JInternalFrame {
 	}
 	// 初始化商品下拉选择框
 	private void initSpBox() {
-		List list = new ArrayList();
+//		List list = new ArrayList();
+//		List goodsList = MainController.getInstance().getAllGoodsList();
+//		sp.removeAllItems();
+//		sp.addItem(new GoodsTableInfo());
+//		for (int i = 0; table != null && i < table.getRowCount(); i++) {
+//			GoodsTableInfo tmpInfo = (GoodsTableInfo) table.getValueAt(i, 1);
+//			if (tmpInfo != null && tmpInfo.getGid() != null)
+//				list.add(tmpInfo.getGid());
+//		}
+//		for(int i=0;i<goodsList.size();i++) {
+//			GoodsDo goodsDo= (GoodsDo) goodsList.get(i);
+//			// 如果表格中以存在同样商品，商品下拉框中就不再包含该商品
+//			if (list.contains(goodsDo.getGid())){
+//				continue;
+//			}
+//			GoodsTableInfo info = new GoodsTableInfo();
+//			info.setGid(goodsDo.getGid());
+//			info.setGname(goodsDo.getGname());
+//			info.setSpec(goodsDo.getSpec());
+//			info.setPlace(goodsDo.getPlace());
+//			sp.addItem(info);
+//		}
 		List goodsList = MainController.getInstance().getAllGoodsList();
-		sp.removeAllItems();
-		sp.addItem(new GoodsTableInfo());
-		for (int i = 0; table != null && i < table.getRowCount(); i++) {
-			GoodsTableInfo tmpInfo = (GoodsTableInfo) table.getValueAt(i, 1);
-			if (tmpInfo != null && tmpInfo.getGid() != null)
-				list.add(tmpInfo.getGid());
-		}
-		for(int i=0;i<goodsList.size();i++) {
+		for(int i=0;null!=goodsList&&i<goodsList.size();i++) {
 			GoodsDo goodsDo= (GoodsDo) goodsList.get(i);
-			// 如果表格中以存在同样商品，商品下拉框中就不再包含该商品
-			if (list.contains(goodsDo.getGid())){
-				continue;
-			}
-			GoodsTableInfo info = new GoodsTableInfo();
-			info.setGid(goodsDo.getGid());
-			info.setGname(goodsDo.getGname());
-			info.setSpec(goodsDo.getSpec());
-			info.setPlace(goodsDo.getPlace());
-			sp.addItem(info);
+			GoodsItem item = new GoodsItem();
+			item.setId(goodsDo.getGid());
+			item.setName(goodsDo.getGname());
+			sp.addBoxItem(item);
+			sp.putUniversityMap(goodsDo.getGid(), item);
 		}
+	}
+	//根据销售单号初始化销售单信息
+		private synchronized void initBuyOrderInfo() {
+			if(!piaoHao.getText().isEmpty()) {
+				DefaultTableModel model = (DefaultTableModel) table.getModel();
+				clearFrome();
+				List<BuyOrderDo> list = MainController.getInstance().getBuyOrderListByBuyNum(piaoHao.getText().trim());
+				if(null!=list&&!list.isEmpty()) {
+					
+					for(int i=0;i<list.size();i++) {
+						BuyOrderDo buyOrderDoInfo = list.get(i);
+						GoodsDo goodsDo = MainController.getInstance().getGoodsById(buyOrderDoInfo.getGid());
+//						{"","商品名称", "数量","单价","总价","产地", "规格", "备注"};
+						model.addRow(new Vector());
+						GoodsItem item = new GoodsItem();
+	                    item.setId(goodsDo.getGid());
+	                    item.setName(goodsDo.getGname());
+						table.setValueAt(item, i, 1);
+						table.setValueAt(buyOrderDoInfo.getCount(), i, 2);
+						table.setValueAt(StringUtil.getStrDouble(buyOrderDoInfo.getAmount()), i, 3);
+						table.setValueAt(StringUtil.getStrDouble(buyOrderDoInfo.getSumAmount()), i, 4);
+						table.setValueAt(StringUtil.getStrNotNull(goodsDo.getPlace()), i, 5);
+						table.setValueAt(StringUtil.getStrNotNull(goodsDo.getSpec()) + "", i, 6);
+						table.setValueAt(StringUtil.getStrNotNull(goodsDo.getMemo()) + "", i, 7);
+						table.editCellAt(i, 8);
+						
+						if(i==0) {
+							memo.setText(buyOrderDoInfo.getMemo());//备注
+							jhsj.setText(DateUtil.fmtDateToYMD(buyOrderDoInfo.getOrderDate()));//日期
+						}
+					}
+					calcAmount();
+				}
+			}
+		}
+	private void clearFrome() {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int num = model.getRowCount();
+		for (int i = 0; i < num; i++) {
+			model.removeRow(0);
+		}
+		memo.setText("");//备注
+		jhsj.setText(DateUtil.getToDayStr());//日期
 	}
 	// 设置组件位置并添加到容器中
 	private void setupComponet(JComponent component, int gridx, int gridy,
@@ -304,37 +412,41 @@ public class BuyOrderFrame extends JInternalFrame {
 			gridBagConstrains.fill = GridBagConstraints.HORIZONTAL;
 		getContentPane().add(component, gridBagConstrains);
 	}
+
+	private void calcAmount() {
+		// 清除空行
+		clearEmptyRow();
+		// 计算代码
+		int rows = table.getRowCount();
+		int count = 0;
+		BigDecimal money = new BigDecimal(0);
+		// 计算品种数量
+		GoodsItem column = null;
+		if (rows > 0)
+			column = (GoodsItem) table.getValueAt(rows - 1, 1);
+		if (rows > 0 && (column == null || null==column.getId()))
+			rows--;
+		// 计算货品总数和金额
+		// String[] columnNames = {"","商品名称", "数量","单价","总价","产地", "规格", "备注"};
+		for (int i = 0; i < rows; i++) {
+			Object column7 = table.getValueAt(i, 2);// 数量
+			Object column6 = table.getValueAt(i, 3);// 单价
+			count = count + (null == column7 ? 0 : Integer.valueOf(column7.toString()));
+			BigDecimal dj = new BigDecimal(null == column6 ? "0" : column6.toString());
+			BigDecimal sj = new BigDecimal(null == column7 ? "0" : column7.toString());
+			BigDecimal zj = dj.multiply(sj).setScale(2, BigDecimal.ROUND_HALF_UP);
+			table.setValueAt(zj, i, 4);// 设置单个商品总价
+			money = money.add(zj);
+		}
+		pzs.setText(rows + "");
+		hpzs.setText(count + "");
+		hjje.setText(money + "");
+		// /////////////////////////////////////////////////////////////////
+	}
 	// 在事件中计算品种数量、货品总数、合计金额
 	private final class computeInfo implements ContainerListener {
 		public void componentRemoved(ContainerEvent e) {
-			// 清除空行
-			clearEmptyRow();
-			// 计算代码
-			int rows = table.getRowCount();
-			int count = 0;
-			BigDecimal money = new BigDecimal(0);
-			// 计算品种数量
-			GoodsTableInfo column = null;
-			if (rows > 0)
-				column = (GoodsTableInfo) table.getValueAt(rows - 1, 1);
-			if (rows > 0 && (column == null || null==column.getGid()))
-				rows--;
-			// 计算货品总数和金额
-//			String[] columnNames = {"","商品名称", "数量","单价","总价","产地", "规格", "备注"};
-			for (int i = 0; i < rows; i++) {
-				Object column7 =  table.getValueAt(i, 2);//数量
-				Object column6 = table.getValueAt(i, 3);//单价
-				count = count+(null==column7?0:Integer.valueOf(column7.toString()));
-				BigDecimal dj = new BigDecimal(null==column6?"0":column6.toString());
-				BigDecimal sj = new BigDecimal(null==column7?"0":column7.toString());
-				BigDecimal zj = dj.multiply(sj).setScale(2,BigDecimal.ROUND_HALF_UP);
-				table.setValueAt(zj, i, 4);//设置单个商品总价
-				money=money.add(zj);
-			}
-			pzs.setText(rows + "");
-			hpzs.setText(count + "");
-			hjje.setText(money + "");
-			// /////////////////////////////////////////////////////////////////
+			calcAmount();
 		}
 		public void componentAdded(ContainerEvent e) {
 		}
@@ -360,26 +472,35 @@ public class BuyOrderFrame extends JInternalFrame {
 	}
 	// 根据商品下拉框的选择，更新表格当前行的内容
 	private synchronized void updateTable() {
-		GoodsTableInfo spinfo = (GoodsTableInfo) sp.getSelectedItem();
+//		GoodsTableInfo spinfo = (GoodsTableInfo) sp.getSelectedItem();
+		GoodsDo goodsDo = MainController.getInstance().getGoodsById(sp.getKey());
 		int row = table.getSelectedRow();
 	
-		if (row >= 0 && spinfo != null) {
+		if (row >= 0 && goodsDo != null) {
 			table.setValueAt(1, row, 2);
 			table.setValueAt(0, row, 3);
 			table.setValueAt(0, row, 4);
-			table.setValueAt(StringUtil.getStrNotNull(spinfo.getPlace()), row, 5);
-			table.setValueAt(StringUtil.getStrNotNull(spinfo.getSpec()) + "", row, 6);
-			table.setValueAt(StringUtil.getStrNotNull(spinfo.getMemo()) + "", row, 7);
+			table.setValueAt(StringUtil.getStrNotNull(goodsDo.getPlace()), row, 5);
+			table.setValueAt(StringUtil.getStrNotNull(goodsDo.getSpec()) + "", row, 6);
+			table.setValueAt(StringUtil.getStrNotNull(goodsDo.getMemo()) + "", row, 7);
 			table.editCellAt(row, 8);
 		}
 	}
 	// 清除空行
 	private synchronized void clearEmptyRow() {
+//		DefaultTableModel dftm = (DefaultTableModel) table.getModel();
+//		for (int i = 0; i < table.getRowCount(); i++) {
+//			GoodsTableInfo info2 = (GoodsTableInfo) table.getValueAt(i, 1);
+//			if (info2 == null || info2.getGid() == null
+//					|| null==info2.getGid()) {
+//				dftm.removeRow(i);
+//			}
+//		}
 		DefaultTableModel dftm = (DefaultTableModel) table.getModel();
+
 		for (int i = 0; i < table.getRowCount(); i++) {
-			GoodsTableInfo info2 = (GoodsTableInfo) table.getValueAt(i, 1);
-			if (info2 == null || info2.getGid() == null
-					|| null==info2.getGid()) {
+			GoodsItem item = (GoodsItem) table.getValueAt(i, 1);
+			if (null == item || item.getId() == null) {
 				dftm.removeRow(i);
 			}
 		}

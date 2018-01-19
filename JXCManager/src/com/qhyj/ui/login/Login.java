@@ -1,8 +1,10 @@
 package com.qhyj.ui.login;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -12,12 +14,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
 import com.qhyj.Const;
 import com.qhyj.controller.MainController;
+import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.UserDo;
-import com.qhyj.ui.internalFrame.SellOrderFrame;
 
 public class Login extends JFrame {
 	private JLabel userLabel;
@@ -34,8 +37,11 @@ public class Login extends JFrame {
         // 设置标题栏的图标为face.gif  
         this.setIconImage(imageIcon.getImage());  
         
-		getContentPane().add(panel);
+//		getContentPane().add(panel);
+		this.add(panel,BorderLayout.CENTER);
+	
 		setBounds(300, 200, panel.getWidth(), panel.getHeight());
+		this.setLocationRelativeTo(null);
 		userLabel = new JLabel();
 		userLabel.setText("用户名：");
 		userLabel.setBounds(100, 135, 200, 18);
@@ -71,7 +77,10 @@ public class Login extends JFrame {
 					return;
 				}
 				setVisible(false);
+				
 				new LoginFrame();
+				initNotiy();
+				
 			}
 		});
 		login.setText("登录");
@@ -89,6 +98,13 @@ public class Login extends JFrame {
 		setVisible(true);
 //		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+	}
+
+	private void initNotiy() {
+		List<CustomDo> list = MainController.getInstance().getCustomListBirthday();
+		TranslucentFrame frame = new TranslucentFrame(list);
+		Thread thread = new Thread(frame);
+		thread.start();
 	}
 	private void setClosable(boolean b) {
 		// TODO Auto-generated method stub

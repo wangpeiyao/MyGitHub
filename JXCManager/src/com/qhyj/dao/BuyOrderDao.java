@@ -32,8 +32,8 @@ public class BuyOrderDao extends BaseDao{
 		if(MapUtils.existObj(map, "eDate")){
 			sb.append(" AND orderDate <='").append(DateUtil.fmtDateToYMD((Date) map.get("eDate"))).append("'");
 		}
-		if(MapUtils.existObj(map, "buyOrderNum")){
-			sb.append(" AND  buyOrderNum='").append(MapUtils.getStringValByKey(map, "buyOrderNum")).append("'");
+		if(MapUtils.existObj(map, "buyNum")){
+			sb.append(" AND  buyNum='").append(MapUtils.getStringValByKey(map, "buyNum")).append("'");
 		}
 		if(MapUtils.existObj(map, "gid")&&0!=MapUtils.getIntegerValByKey(map, "gid")){
 			sb.append(" AND  gid=").append(MapUtils.getIntegerValByKey(map, "gid"));
@@ -42,5 +42,8 @@ public class BuyOrderDao extends BaseDao{
 	}
 	public void delBuyOrderByBuyNum(String buyNum) {
 		update("DELETE T_Buy_ORDER WHERE BuyNUM='"+buyNum+"'");
+	}
+	public void delBuyOrderByCid(Integer cid) {
+		update("DELETE T_SELL_ORDER WHERE CID="+cid);
 	}
 }

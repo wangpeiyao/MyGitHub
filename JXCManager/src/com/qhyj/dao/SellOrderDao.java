@@ -48,7 +48,7 @@ public class SellOrderDao extends BaseDao{
 	}
 	private String getSellRebateSqlCheild(Map map) {
 		StringBuffer sb = new StringBuffer();
-	    sb.append(" select "+MapUtils.getIntegerValByKey(map, "cid")+"as cid,a.gid,a.count,a.sumamount  from t_Sell_order a  where 1=1 ");
+	    sb.append(" select "+MapUtils.getIntegerValByKey(map, "cid")+" as cid,a.gid,a.count,a.sumamount  from t_Sell_order a  where 1=1 ");
 	    if(MapUtils.existObj(map, "sDate")){
 			sb.append(" AND orderDate >='").append(DateUtil.fmtDateToYMD((Date) map.get("sDate"))).append("'");
 		}
@@ -63,16 +63,32 @@ public class SellOrderDao extends BaseDao{
 	    			sb.append(",").append(cid);
 	    		}
 	    		sb.append(")");
+	    	}else {
+	    		sb.append(" and cid = ").append(MapUtils.getIntegerValByKey(map, "cid")).append(" ");
 	    	}
 	    }
 		return sb.toString();
 	}
+//	private Integer[] getChildCustomSql(int cid) {
+//		StringBuffer sb = new StringBuffer();
+//		sb.append("with temp ( [cid], [parentid]) as( ");
+//		sb.append("select cid, parentid from T_custom where [parentid] = "+cid);
+//		sb.append(	"union all select a.cid, a.parentid from T_custom a inner join temp on a.[parentid] = temp.[cid])");
+//		sb.append(	"  select cid from temp ");
+//		ResultSet rs = executeSql(sb.toString());
+//		List resList = new ArrayList();
+//		try {
+//			while (null!=rs&&rs.next()) {
+//				resList.add(rs.getInt("cid"));
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//		return (Integer[]) resList.toArray(new Integer[resList.size()]);
+//	}
 	private Integer[] getChildCustomSql(int cid) {
 		StringBuffer sb = new StringBuffer();
-		sb.append("with temp ( [cid], [parentid]) as( ");
-		sb.append("select cid, parentid from T_custom where [parentid] = "+cid);
-		sb.append(	"union all select a.cid, a.parentid from T_custom a inner join temp on a.[parentid] = temp.[cid])");
-		sb.append(	"  select cid from temp ");
+		sb.append("select cid from T_custom where parentid= "+cid);
 		ResultSet rs = executeSql(sb.toString());
 		List resList = new ArrayList();
 		try {
@@ -83,6 +99,13 @@ public class SellOrderDao extends BaseDao{
 			e.printStackTrace();
 		}
 		return (Integer[]) resList.toArray(new Integer[resList.size()]);
+	}
+	public List<Integer> getCustomHavSellOrder(Map map){
+		StringBuffer sb = new StringBuffer();
+		sb.append("select distinct aa.cid from (");
+		sb.append(getSellRebateSqlNoCheild(map));
+		sb.append(" ) aa ");
+		return findListBySql(new Integer(0), sb.toString());
 	}
 	/**
 	 * cheildFlag=false 查本单位数据
@@ -133,10 +156,26 @@ public class SellOrderDao extends BaseDao{
 			sb.append(" AND orderDate <='").append(DateUtil.fmtDateToYMD((Date) map.get("eDate"))).append("'");
 		}
 		if(MapUtils.existObj(map, "cid")&&0!=MapUtils.getIntegerValByKey(map, "cid")){
-			sb.append(" AND  CID=").append(MapUtils.getIntegerValByKey(map, "cid"));
+			if(MapUtils.existObj(map, "isInclude")&&new Integer(1).equals(MapUtils.getIntegerValByKey(map, "isInclude"))) {//包含下级
+				Integer[] cids = getChildCustomSql(MapUtils.getIntegerValByKey(map, "cid"));
+		    	if(cids.length>0) {
+		    		sb.append(" and cid in(").append(MapUtils.getIntegerValByKey(map, "cid"));
+		    		for(Integer cid:cids) {
+		    			sb.append(",").append(cid);
+		    		}
+		    		sb.append(")");
+		    	}else {
+		    		sb.append(" AND  CID=").append(MapUtils.getIntegerValByKey(map, "cid"));
+		    	}
+			}else if(MapUtils.existObj(map, "isInclude")&&new Integer(2).equals(MapUtils.getIntegerValByKey(map, "isInclude"))){//不包含下级
+				sb.append(" AND  CID=").append(MapUtils.getIntegerValByKey(map, "cid"));
+			}
 		}
 		if(MapUtils.existObj(map, "gid")&&0!=MapUtils.getIntegerValByKey(map, "gid")){
 			sb.append(" AND  GID=").append(MapUtils.getIntegerValByKey(map, "gid"));
+		}
+		if(MapUtils.existObj(map, "payState")&&0!=MapUtils.getIntegerValByKey(map, "payState")){
+			sb.append(" AND  payState=").append(MapUtils.getIntegerValByKey(map, "payState"));
 		}
 		if(MapUtils.existObj(map, "sellOrderNum")){
 			sb.append(" AND  sellNum='").append(MapUtils.getStringValByKey(map, "sellOrderNum")).append("'");
@@ -145,5 +184,8 @@ public class SellOrderDao extends BaseDao{
 	}
 	public void delSellOrderBySellNum(String sellNum) {
 		update("DELETE T_SELL_ORDER WHERE SELLNUM='"+sellNum+"'");
+	}
+	public void delSellOrderByCid(Integer cid) {
+		update("DELETE T_SELL_ORDER WHERE CID="+cid);
 	}
 }

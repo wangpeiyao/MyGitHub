@@ -29,14 +29,28 @@ public class CustomDao extends BaseDao{
 	public void deleteCustom(Integer cid) {
 		update("DELETE T_CUSTOM where CID="+cid);
 	}
-	public void updateCustomName(Integer cid,String cname) {
-		update("UPDATE T_CUSTOM SET LASTUPDATETIME=GETDATE(),CNAME='"+cname+"' WHERE CID="+cid);
+	public void updateCustomName(CustomDo customDo) {
+		update("UPDATE T_CUSTOM SET LASTUPDATETIME=GETDATE(),PHONENUM='"+customDo.getPhonenum()+"',IDNM='"+customDo.getIdnm()+"',CNAME='"+customDo.getCname()+"' WHERE CID="+customDo.getCid());
 	}
 	public ResultSet executeSql(String sql) {
 		return super.executeSql(sql);
 	}
+	public List<CustomDo> getCustomListBirthday(){
+		String sql = "SELECT * FROM T_custom WHERE  LEN(idnm)>15 AND idnm IS NOT NULL AND \r\n" + 
+				"convert(DATETIME,DateName(year,GetDate())+SUBSTRING(idnm, 11, 4), 112)-GETDATE()<3 ";
+		return findListBySql(new CustomDo(), sql);
+	}
+	
+	public boolean checkCustomByName(String name) {
+		List list = findListBySql(new CustomDo(), "SELECT * FROM T_CUSTOM WHERE CNAME='"+name+"'");
+		if(null!=list&&list.size()>0) {
+			return true;
+		}
+		return false;
+	}
 	
 	public void addCustom(CustomDo customDo) {
+		
 		Integer id = insert(customDo.getInsertSql());
 		customDo.setCid(id);
 	}

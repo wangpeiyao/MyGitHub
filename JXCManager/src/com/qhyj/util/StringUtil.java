@@ -6,8 +6,15 @@ public class StringUtil {
 		if(null==str) {
 			return "";
 		}
-		return str;
+		return str.trim();
 	}
+	public static String getStrDouble(Double d) {
+		if(d==null) {
+			return "";
+		}
+		return d.toString();
+	}
+	
 	
 
 }
