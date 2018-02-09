@@ -242,6 +242,7 @@ public class QrySellOrderFrame extends JInternalFrame {
 		rowData.add("ºÏ      ¼Æ");
 		rowData.add("");
 		rowData.add("");
+		rowData.add("");
 		rowData.add(sumaccount);
 		rowData.add("");
 		rowData.add(sumamount.setScale(2, BigDecimal.ROUND_HALF_UP));

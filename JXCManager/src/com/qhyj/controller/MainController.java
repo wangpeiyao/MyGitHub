@@ -117,14 +117,14 @@ public class MainController {
 //		List<SellRebateModel> list= (List<SellRebateModel>)map.entrySet().stream().map(et ->et.getValue()).collect(Collectors.toList());
 //		list.sort(Comparator.comparingInt(SellRebateModel::getCid));
 //		list.forEach(obj-> System.out.println(obj.getCid()));
-		List list = new ArrayList();
-		list.add(1);
-		list.add(1);
-		list.add(1);
-		list.add(1);
-		
-		list.clear();
-		System.out.println(list.size());
+		Map map = new HashMap();
+		SellRebateModel model = new SellRebateModel();
+		model.setRebateAmount(22d);
+		map.put("QQ", model);
+		SellRebateModel model1 = (SellRebateModel) map.get("QQ");
+		model1.addRebateAmount(22d);
+		SellRebateModel model2 = (SellRebateModel) map.get("QQ");
+		System.out.println(model2.getRebateAmount());
 	}
 	
 	public List<UserDo> getAllUserList(){
@@ -360,9 +360,11 @@ public class MainController {
 	public void addBuyOrderList(List<BuyOrderDo> list) {
 		String buyNum = list.get(0).getBuyNum();
 		Date orderDate =list.get(0).getOrderDate();
-		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))
-				||buyNum.length()!=13) {
-			throw new RuntimeException("销售单与销售日期不匹配");
+		if(buyNum.length()!=13) {
+			throw new RuntimeException("销售单格式不正确，单号："+buyNum+"日期："+DateUtil.fmtDateToYyyyMMDD(orderDate));
+		}
+		if(!buyNum.startsWith("JH"+DateUtil.fmtDateToYyyyMMDD(orderDate))) {
+			throw new RuntimeException("销售单与销售日期不匹配，单号："+buyNum+"日期："+DateUtil.fmtDateToYyyyMMDD(orderDate));
 		}
 		buyOrderDao.delBuyOrderByBuyNum(buyNum);
 		for(BuyOrderDo buyOrderDo:list) {

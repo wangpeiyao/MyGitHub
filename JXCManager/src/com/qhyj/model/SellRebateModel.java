@@ -95,7 +95,7 @@ public class SellRebateModel {
 			if(">".equals(bjsymbol)) {
 				if(amount-bjnum>0) {
 					if("amount".equals(fltype)) {
-						return flnum;
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -104,7 +104,7 @@ public class SellRebateModel {
 			}else if("=".equals(bjsymbol)) {
 				if(amount-bjnum==0) {
 					if("amount".equals(fltype)) {
-						return flnum;
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -113,7 +113,7 @@ public class SellRebateModel {
 			}else if("<".equals(bjsymbol)) {
 				if(amount-bjnum<0) {
 					if("amount".equals(fltype)) {
-						return flnum;
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -124,7 +124,7 @@ public class SellRebateModel {
 			if(">".equals(bjsymbol)) {
 				if(count-bjnum>0) {
 					if("amount".equals(fltype)) {
-						return flnum;
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -132,8 +132,8 @@ public class SellRebateModel {
 				}
 			}else if("=".equals(bjsymbol)) {
 				if(count-bjnum==0) {
-					if("amount".equals(fltype)) {
-						return flnum;
+					if("amount".equals(fltype)) {	
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -142,7 +142,7 @@ public class SellRebateModel {
 			}else if("<".equals(bjsymbol)) {
 				if(count-bjnum<0) {
 					if("amount".equals(fltype)) {
-						return flnum;
+						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
 						BigDecimal b = new BigDecimal(amount * flnum);
 						return b.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();

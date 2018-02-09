@@ -37,13 +37,10 @@ import javax.swing.table.TableColumn;
 
 import com.qhyj.controller.MainController;
 import com.qhyj.domain.BuyOrderDo;
-import com.qhyj.domain.CustomDo;
 import com.qhyj.domain.GoodsDo;
-import com.qhyj.domain.SellOrderDo;
 import com.qhyj.domain.UserDo;
 import com.qhyj.model.GoodsCellEditor;
 import com.qhyj.model.GoodsItem;
-import com.qhyj.model.GoodsTableInfo;
 import com.qhyj.ui.login.Login;
 import com.qhyj.util.DateUtil;
 import com.qhyj.util.StringUtil;
@@ -208,7 +205,7 @@ public class BuyOrderFrame extends JInternalFrame {
 				
 				String id = piaoHao.getText();						// 票号
 				String memoStr = memo.getText();						// 票号
-				Date orderDate = DateUtil.fmtStrToDate(jhsj.getText(), "yyyy-mm-dd");
+				Date orderDate = DateUtil.fmtStrToDate(jhsj.getText(), "yyyy-MM-dd");
 				if(null==orderDate) {
 					JOptionPane.showMessageDialog(BuyOrderFrame.this, "日期格式不正确");
 					return;
