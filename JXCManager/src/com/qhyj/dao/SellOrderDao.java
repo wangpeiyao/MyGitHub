@@ -4,10 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.collections.ArrayStack;
 
 import com.qhyj.domain.SellOrderDo;
 import com.qhyj.model.SellRebateModel;
@@ -146,6 +145,18 @@ public class SellOrderDao extends BaseDao{
 //			sb.append(" ) aaa");
 //		}
 	    return findListBySql(new SellRebateModel(), sb.toString());
+	}
+	public Map getSumOrderAmountByCid(Map map,boolean cheildFlag) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("select SUM(aa.count) sumcount,SUM(aa.sumamount) sumAmount from (");
+		if(cheildFlag) {//°üº¬ÏÂ¼¶
+			sb.append(getSellRebateSqlCheild(map));
+		}else{
+			sb.append(getSellRebateSqlNoCheild(map));
+		}
+		sb.append(" ) aa");
+		List<HashMap> list =  findListBySql(new HashMap(), sb.toString());
+		return list.get(0);
 	}
 	public List<SellOrderDo> getSellOrderListByMap(Map map){
 		StringBuffer sb = new StringBuffer("SELECT * FROM T_SELL_ORDER WHERE 1=1 ");

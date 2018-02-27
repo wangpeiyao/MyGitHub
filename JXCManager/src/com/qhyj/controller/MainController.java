@@ -264,6 +264,20 @@ public class MainController {
 		}
 		
 		//计算每个客户每类商品返利
+		Map<String,Object> tempMap = new HashMap<String,Object>();
+		for(SellRebateModel model:customList) {
+			int cid = model.getCid();
+			if(MapUtils.existObj(tempMap, "amount_"+String.valueOf(cid))) {
+				SellRebateModel model1 = (SellRebateModel) tempMap.get(String.valueOf(cid));
+				Double amount = (Double) tempMap.get("amount_"+String.valueOf(cid));
+				Integer count = (Integer) tempMap.get("count_"+String.valueOf(cid));
+				tempMap.put("amount_"+String.valueOf(cid), model.getSumAmount()+amount);
+				tempMap.put("count_"+String.valueOf(cid), model.getSumCount()+count);
+			}else {
+				tempMap.put("amount_"+String.valueOf(cid), model.getSumAmount());
+				tempMap.put("count_"+String.valueOf(cid), model.getSumCount());
+			}
+		}
 		Map<String,SellRebateModel> modelMap = new HashMap<String,SellRebateModel>();
 		Map expMap = new HashMap();
 		for(SellRebateModel model:customList) {
@@ -276,7 +290,9 @@ public class MainController {
 				exps = rebateDao.getExpsByGid(gid);
 				expMap.put(String.valueOf(gid), exps);
 			}
-			double rebate = model.getRebate(exps);
+			Double sumCAmount = null==tempMap.get("amount_"+String.valueOf(cid))?0.0:(Double) tempMap.get("amount_"+String.valueOf(cid));
+			Integer sumCCount = null==tempMap.get("count_"+String.valueOf(cid))?0:(Integer) tempMap.get("count_"+String.valueOf(cid));
+			double rebate = model.getRebate(exps,sumCAmount.doubleValue(),sumCCount.intValue());
 			model.setRebateAmount(rebate);
 			//汇总每个客户所有的商品
 			CustomDo customDo = customDao.getCustom(cid);
@@ -290,6 +306,7 @@ public class MainController {
 				modelMap.put(String.valueOf(cid), model);
 			}
 		}
+		
 		List<SellRebateModel> sortList= (List<SellRebateModel>)modelMap.entrySet().stream().map(et->et.getValue()).collect(Collectors.toList());
 		
 		//根据单位排序

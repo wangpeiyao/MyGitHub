@@ -37,7 +37,7 @@ public class CustomDao extends BaseDao{
 	}
 	public List<CustomDo> getCustomListBirthday(){
 		String sql = "SELECT * FROM T_custom WHERE  LEN(idnm)>15 AND idnm IS NOT NULL AND \r\n" + 
-				"convert(DATETIME,DateName(year,GetDate())+SUBSTRING(idnm, 11, 4), 112)-GETDATE()<3 ";
+				"datediff(day,convert(DATETIME,DateName(year,GetDate())+SUBSTRING(idnm, 11, 4), 112),GETDATE()) between -3 and 3 ";
 		return findListBySql(new CustomDo(), sql);
 	}
 	

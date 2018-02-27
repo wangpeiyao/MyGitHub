@@ -72,17 +72,17 @@ public class SellRebateModel {
 	public void setRebateAmount(Double rebateAmount) {
 		this.rebateAmount = rebateAmount;
 	}
-	public double getRebate(String[] expJsons) {
+	public double getRebate(String[] expJsons,double sumamount,int sumcount) {
 		Double resD=null;
 		for(int i=0;i<expJsons.length;i++) {
-			resD = getRebate(expJsons[i]);
+			resD = getRebate(expJsons[i],sumamount,sumcount);
 			if(null!=resD) {
 				return resD;
 			}
 		}
 		return 0d;
 	}
-	private Double getRebate(String expJsonStr) {
+	private Double getRebate(String expJsonStr,double sumamount,int sumcount) {
 		int count = this.sumCount;
 		double amount = this.sumAmount;
 		Map expMap = JsonTools.parseJSON2Map(expJsonStr);
@@ -93,7 +93,7 @@ public class SellRebateModel {
 		double flnum =  MapUtils.getDoubleValByKey(expMap, "flnum");
 		if("amount".equals(bjtype)) {
 			if(">".equals(bjsymbol)) {
-				if(amount-bjnum>0) {
+				if(sumamount-bjnum>=0) {
 					if("amount".equals(fltype)) {
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
@@ -102,7 +102,7 @@ public class SellRebateModel {
 					}
 				}
 			}else if("=".equals(bjsymbol)) {
-				if(amount-bjnum==0) {
+				if(sumamount-bjnum==0) {
 					if("amount".equals(fltype)) {
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
@@ -111,7 +111,7 @@ public class SellRebateModel {
 					}
 				}
 			}else if("<".equals(bjsymbol)) {
-				if(amount-bjnum<0) {
+				if(sumamount-bjnum<=0) {
 					if("amount".equals(fltype)) {
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
@@ -122,7 +122,7 @@ public class SellRebateModel {
 			}
 		}else if("number".equals(bjtype)) {
 			if(">".equals(bjsymbol)) {
-				if(count-bjnum>0) {
+				if(sumcount-bjnum>=0) {
 					if("amount".equals(fltype)) {
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
@@ -131,7 +131,7 @@ public class SellRebateModel {
 					}
 				}
 			}else if("=".equals(bjsymbol)) {
-				if(count-bjnum==0) {
+				if(sumcount-bjnum==0) {
 					if("amount".equals(fltype)) {	
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
@@ -140,7 +140,7 @@ public class SellRebateModel {
 					}
 				}
 			}else if("<".equals(bjsymbol)) {
-				if(count-bjnum<0) {
+				if(sumcount-bjnum<=0) {
 					if("amount".equals(fltype)) {
 						return flnum*sumCount;
 					}else if("rate".equals(fltype)) {
