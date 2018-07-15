@@ -10,6 +10,7 @@ public class SellRebateModel {
 
 	private String cname;
 	private Integer gid;
+	private Integer childId;
 	private Integer cid;
 	private Integer sumCount;
 	private Double sumAmount;
@@ -151,6 +152,12 @@ public class SellRebateModel {
 			}
 		}
 		return null;
+	}
+	public Integer getChildId() {
+		return childId;
+	}
+	public void setChildId(Integer childId) {
+		this.childId = childId;
 	}
 	
 }

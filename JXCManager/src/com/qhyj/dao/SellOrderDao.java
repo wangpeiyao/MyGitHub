@@ -47,7 +47,8 @@ public class SellOrderDao extends BaseDao{
 	}
 	private String getSellRebateSqlCheild(Map map) {
 		StringBuffer sb = new StringBuffer();
-	    sb.append(" select "+MapUtils.getIntegerValByKey(map, "cid")+" as cid,a.gid,a.count,a.sumamount  from t_Sell_order a  where 1=1 ");
+	    sb.append(" select "+MapUtils.getIntegerValByKey(map, "cid")+" as cid,a.cid as childId,a.gid,a.count,a.sumamount  from t_Sell_order a  where 1=1 ");
+//		sb.append(" select a.cid as cid,a.gid,a.count,a.sumamount  from t_Sell_order a  where 1=1 ");
 	    if(MapUtils.existObj(map, "sDate")){
 			sb.append(" AND orderDate >='").append(DateUtil.fmtDateToYMD((Date) map.get("sDate"))).append("'");
 		}
@@ -102,7 +103,15 @@ public class SellOrderDao extends BaseDao{
 	public List<Integer> getCustomHavSellOrder(Map map){
 		StringBuffer sb = new StringBuffer();
 		sb.append("select distinct aa.cid from (");
-		sb.append(getSellRebateSqlNoCheild(map));
+//		if(new Integer(1).equals(MapUtils.getIntegerValByKey(map, "isInclude"))) {
+//			if(null!=MapUtils.getIntegerValByKey(map, "cid")) {
+//				sb.append(getSellRebateSqlCheild(map));
+//			}else {
+//				
+//			}
+//		}else {
+			sb.append(getSellRebateSqlNoCheild(map));
+//		}
 		sb.append(" ) aa ");
 		return findListBySql(new Integer(0), sb.toString());
 	}

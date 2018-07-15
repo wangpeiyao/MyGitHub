@@ -113,12 +113,12 @@ public class QryCustomOrderFrame extends JInternalFrame {
 		final JButton exportButton = new JButton("导出数据");
 		exportButton.addActionListener(new ActionListener() {
 			public void actionPerformed(final ActionEvent e) {
-				String[] keys = new String[]{"序号","销售单号","客户", "数量", "单价","金额","备注","创建时间","最后更新时间"};
-				String[] files = new String[] {"id","sumnum","cname","count","amount","sumamount","memo","createtime","lastupdatetime"};
+				String[] keys = new String[]{"次序","客户", "总数量", "总金额","返利金额"};
+				String[] files = new String[] {"id","cname","count","amount","sumamount"};
 				DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 				int rowCount = tableModel.getRowCount();
 				List<Map<String,Object>> dataList = new ArrayList<Map<String,Object>>();
-				for(int i=1;i<rowCount;i++) {
+				for(int i=0;i<rowCount;i++) {
 					Map<String,Object> map = new HashMap<String,Object>() ;
 					for(int j=0;j<files.length;j++) {
 						map.put(files[j],tableModel.getValueAt(i,j));

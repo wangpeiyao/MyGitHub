@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.qhyj.dao.BaseDao;
@@ -117,14 +119,19 @@ public class MainController {
 //		List<SellRebateModel> list= (List<SellRebateModel>)map.entrySet().stream().map(et ->et.getValue()).collect(Collectors.toList());
 //		list.sort(Comparator.comparingInt(SellRebateModel::getCid));
 //		list.forEach(obj-> System.out.println(obj.getCid()));
-		Map map = new HashMap();
-		SellRebateModel model = new SellRebateModel();
-		model.setRebateAmount(22d);
-		map.put("QQ", model);
-		SellRebateModel model1 = (SellRebateModel) map.get("QQ");
-		model1.addRebateAmount(22d);
-		SellRebateModel model2 = (SellRebateModel) map.get("QQ");
-		System.out.println(model2.getRebateAmount());
+//		Map map = new HashMap();
+//		SellRebateModel model = new SellRebateModel();
+//		model.setRebateAmount(22d);
+//		map.put("QQ", model);
+//		SellRebateModel model1 = (SellRebateModel) map.get("QQ");
+//		model1.addRebateAmount(22d);
+//		SellRebateModel model2 = (SellRebateModel) map.get("QQ");
+//		System.out.println(model2.getRebateAmount());
+		List list = new ArrayList();
+		list.add(1);
+		list.add(2);
+		list.add(4);
+		System.out.println(list.contains(8));
 	}
 	
 	public List<UserDo> getAllUserList(){
@@ -246,20 +253,48 @@ public class MainController {
 		//取出每个客户每类产品买多少
 		if(new Integer(1).equals(MapUtils.getIntegerValByKey(map, "isInclude"))) {//包含下级
 //			customList = sellOrderDao.getSellRebateList(map,false);
-			List<Integer> list = sellOrderDao.getCustomHavSellOrder(map);
+			List<Integer> list = null;
+			if(MapUtils.existObj(map, "cid")) {//包含下级单位
+				list = new ArrayList();
+				list.add(MapUtils.getIntegerValByKey(map, "cid"));
+			}else {
+				list = sellOrderDao.getCustomHavSellOrder(map);
+			}
 			if(null==list||list.size()<1) {
 				return null;
 			}
 			customList = new ArrayList<SellRebateModel>();
+			Set set = new HashSet();
 			for(int i=0;i<list.size();i++) {
-				map.put("cid", list.get(i));
-				customList.addAll(sellOrderDao.getSellRebateList(map,true));
+				CustomDo customDo = customDao.getCustom(list.get(i));
+				if(null!=customDo.getParentId()&&!new Integer(0).equals(customDo.getParentId())&&!set.contains(customDo.getParentId())) {
+					map.put("cid", customDo.getParentId());
+					List<SellRebateModel> tempList = sellOrderDao.getSellRebateList(map,true);
+					if(tempList!=null) {
+						customList.addAll(tempList);
+					}
+					set.add(customDo.getParentId());
+					map.put("cid", list.get(i));
+					List<SellRebateModel> tempList1 = sellOrderDao.getSellRebateList(map,true);
+					if(tempList!=null) {
+						customList.addAll(tempList1);
+					}
+					set.add( list.get(i));
+				}
+				if(!set.contains(customDo.getParentId())) {
+					map.put("cid", list.get(i));
+					List<SellRebateModel> tempList = sellOrderDao.getSellRebateList(map,true);
+					if(tempList!=null) {
+						customList.addAll(tempList);
+					}
+					set.add( list.get(i));
+				}
 			}
 		}else {
 			customList = sellOrderDao.getSellRebateList(map,false);
 		}
 		
-		if(null==customList) {
+		if(null==customList||customList.size()<1) {
 			return null;
 		}
 		
@@ -302,6 +337,7 @@ public class MainController {
 				model1.addSumAmount(model.getSumAmount());
 				model1.addSumCount(model.getSumCount());
 				model1.addRebateAmount(model.getRebateAmount());
+				modelMap.put(String.valueOf(model.getChildId()), model);
 			}else {
 				modelMap.put(String.valueOf(cid), model);
 			}

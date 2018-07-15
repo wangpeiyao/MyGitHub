@@ -7,7 +7,7 @@ import com.qhyj.domain.RebateDo;
 public class RebateDao extends BaseDao{
 	
 	public List<RebateDo> getRebateByGid(int gid) {
-		return findListBySql(new RebateDo(), "SELECT * FROM T_REBATE WHERE GID=" + gid+" ORDER BY RID");
+		return findListBySql(new RebateDo(), "SELECT * FROM T_REBATE WHERE GID=" + gid+" ORDER BY RID DESC");
 	}
 
 	public String[] getExpsByGid(int gid) {

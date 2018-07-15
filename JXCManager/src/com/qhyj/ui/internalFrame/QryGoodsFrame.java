@@ -92,7 +92,7 @@ public class QryGoodsFrame extends JInternalFrame {
 				DefaultTableModel tableModel = (DefaultTableModel) table.getModel();
 				int rowCount = tableModel.getRowCount();
 				List<Map<String,Object>> dataList = new ArrayList<Map<String,Object>>();
-				for(int i=1;i<rowCount;i++) {
+				for(int i=0;i<rowCount;i++) {
 					Map<String,Object> map = new HashMap<String,Object>() ;
 					for(int j=0;j<files.length;j++) {
 						map.put(files[j],tableModel.getValueAt(i,j));
